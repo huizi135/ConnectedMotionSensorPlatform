@@ -1,0 +1,49 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Phase 0 MQTT Contract 契约与验证</title><style>body{max-width:1050px;margin:40px auto;padding:0 24px;font:16px/1.7 system-ui,"Microsoft YaHei",sans-serif;color:#22303e}h1,h2{color:#121c26}table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid #d4dfe8;padding:12px;text-align:left}th{background:#eaf0f5}pre{background:#f2f5f8;padding:18px;overflow:auto;font-size:13px}a{color:#17649d}@media print{body{margin:0;font-size:10pt}pre{white-space:pre-wrap}tr{break-inside:avoid}}</style></head><body><section id="repository-current-status"><h2>Current repository workflow 当前仓库工作流</h2><p>Updated 2026-10-22. GitHub is now the source of truth. These files are included on the docs/phase-0-baseline work branch for pull-request review. The design baseline, ADRs, schemas and examples are prepared; 46 contract checks passed in the author environment. Windows synchronization and runtime tests remain pending. Earlier sections retain historical steps and may describe an older snapshot.</p><p>现已改为 GitHub 直接修改文件、工作分支及 PR 评审。无需重复下载 ZIP。Git、Windows Clone、仓库级身份、基础配置、HTML 清单及 README 编码已验证；本次文件在工作分支中准备，46 项契约检查在制作者环境通过。本地同步和运行测试待验证。下文旧步骤属于历史记录，以本节最新状态为准。</p><p>Windows: back up current local changes with git stash push -u, verify a clean working tree, then fetch and switch to the shared branch. Keep the stash until comparison; do not immediately pop it over matching tracked files. See docs/git-workflow.md for exact commands. Windows 先备份未提交内容，确认干净后切换远程工作分支。</p></section><h1>Phase 0 MQTT Contract 契约与验证</h1><p>2026-10-22 · Design baseline and author-side validation · 设计基线及制作者环境验证</p><h2>Current evidence 当前证据</h2><p>User output confirms the architecture file, ADR 0001 and all four HTML records exist in docs. README format and explicit UTF-8 reading passed. Schemas and examples are now prepared; Windows extraction, Python execution, MQTT transport and backend persistence remain unverified. 用户输出确认架构说明、ADR 0001 及四份 HTML 存在；README 与 UTF-8 检查通过。本轮准备 Schema 与示例，尚未验证 Windows 安装执行、MQTT 通信或后端持久化。</p><h2>What a contract does 契约的作用</h2><p>A contract is the shared boundary between independent Python and .NET implementations, similar to a DTO plus validation rules. It defines required fields, units, identity and time semantics. 契约相当于跨语言共享的 DTO 加校验规则；明确字段、单位、身份与时间语义，让模块独立演进。</p><table><tr><th>Layer 层次</th><th>Checks 检查</th></tr><tr><td>JSON decoding 解码</td><td>Syntax, duplicate keys, finite numbers · 语法、重复键、有限数值</td></tr><tr><td>Schema 模式</td><td>Fields, types, ranges, timestamps and UUIDs · 字段、类型、范围、时间与 UUID</td></tr><tr><td>Envelope 消息封套</td><td>Supported topic and device identity equality · Topic 合法及设备身份一致</td></tr><tr><td>Later runtime 后续运行</td><td>Deduplication, reconnects, QoS, Will and durable storage · 去重、重连、遗嘱与持久化</td></tr></table><h2>Wire decisions 传输约定</h2><p>Telemetry: QoS 1, retain false, one sample per message. Status: QoS 1, retain true. Device IDs use lowercase letters/digits/underscore/hyphen and are 1–64 characters; first character is a letter or digit. 读数单样本、不保留；状态保留。设备 ID 使用小写字母、数字、下划线及短横线，长度 1–64，首位字母或数字。</p><p>Use UTC Z timestamps with up to six fractional digits, m/s² including gravity and rad/s. Sampling and reception time are separate. Preserve messageId, streamId and sequence on retries. 时间使用 UTC Z，最多六位小数；加速度含重力，单位 m/s²；角速度 rad/s；重试保留样本身份与时间。</p><p>reportedAt is required. It may be null only for offline status, allowing a preconfigured Will without inventing a future disconnection time. batteryPercent is optional, 0–100, and is omitted when unknown. reportedAt 必填，仅 offline 允许 null；遗嘱不伪造未来断线时间。电量可选，未知时省略。</p><p>Unknown optional fields are allowed, while known required fields remain validated. simulation is optional and excluded from detector inputs. 未知可选字段允许扩展；已知字段仍校验。simulation 标签可省略，检测器不读取它。</p><h2>Important implementation detail 实现注意</h2><p>JSON Schema format can be annotation-only. Configure explicit date-time and UUID assertions and test impossible dates. Schemas cannot compare a payload to an MQTT topic or prove persistent storage. format 可能仅作注释，需要显式启用验证并测试非法日期。Schema 无法比较 Topic，也无法证明入库。</p><h2>Validation result 验证结果</h2><p>3 valid examples + 43 regression cases = 46/46 passed in the author environment. PASS on an invalid case means the expected rejection occurred. 3 个合法示例加 43 个回归案例全部通过。非法案例的 PASS 表示按预期被拒绝。这不是 Windows 或 MQTT 实测。</p><pre>PASS example telemetry.json
+PASS example status-online.json
+PASS example status-offline-will.json
+PASS valid telemetry
+PASS real device without simulation label
+PASS unknown optional extension
+PASS sequence zero
+PASS sequence safe integer boundary
+PASS microsecond UTC timestamp
+PASS missing messageId
+PASS unsupported schema version
+PASS invalid UUID
+PASS uppercase device ID
+PASS device ID contains topic slash
+PASS negative sequence
+PASS fractional sequence
+PASS boolean sequence
+PASS sequence exceeds interoperability limit
+PASS timestamp missing UTC marker
+PASS noncanonical UTC offset
+PASS invalid calendar date
+PASS missing vector axis
+PASS numeric string instead of number
+PASS null acceleration
+PASS topic payload identity mismatch
+PASS unsupported topic version
+PASS wildcard in published topic
+PASS unrecognized scenario value
+PASS valid online
+PASS online without battery
+PASS battery zero
+PASS valid offline Will
+PASS valid graceful offline
+PASS online null timestamp
+PASS missing reportedAt
+PASS battery above maximum
+PASS battery below minimum
+PASS null battery
+PASS unknown state
+PASS invalid connection UUID
+PASS reject NaN token
+PASS reject infinity token
+PASS reject finite-range overflow
+PASS reject duplicate JSON key
+PASS reject malformed JSON
+PASS reject non-object payload
+jsonschema 4.26.0; Python 3.12.14
+46/46 checks passed
+</pre><h2>Windows handoff 本地交接</h2><p>Extract into the repository root, inspect schemas/examples and list files. Do not install Python or start services in this step. The included validator will be reproduced after Python environment setup in Phase 1. 解压至根目录，检查 Schema 与示例及文件清单。本轮不安装 Python、不启动服务；Phase 1 配置 Python 后重现校验。</p><p>The top-level validator dependency is pinned; this is not a complete environment lockfile. 校验器顶层依赖已固定版本，并非完整环境锁文件。</p><h2>Sources 参考</h2><p><a href="https://json-schema.org/draft/2020-12/">JSON Schema 2020-12</a> · <a href="https://python-jsonschema.readthedocs.io/en/stable/validate/">Python jsonschema validation</a></p></body></html>

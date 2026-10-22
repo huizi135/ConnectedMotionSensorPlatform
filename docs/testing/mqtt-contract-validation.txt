@@ -1,0 +1,48 @@
+PASS example telemetry.json
+PASS example status-online.json
+PASS example status-offline-will.json
+PASS valid telemetry
+PASS real device without simulation label
+PASS unknown optional extension
+PASS sequence zero
+PASS sequence safe integer boundary
+PASS microsecond UTC timestamp
+PASS missing messageId
+PASS unsupported schema version
+PASS invalid UUID
+PASS uppercase device ID
+PASS device ID contains topic slash
+PASS negative sequence
+PASS fractional sequence
+PASS boolean sequence
+PASS sequence exceeds interoperability limit
+PASS timestamp missing UTC marker
+PASS noncanonical UTC offset
+PASS invalid calendar date
+PASS missing vector axis
+PASS numeric string instead of number
+PASS null acceleration
+PASS topic payload identity mismatch
+PASS unsupported topic version
+PASS wildcard in published topic
+PASS unrecognized scenario value
+PASS valid online
+PASS online without battery
+PASS battery zero
+PASS valid offline Will
+PASS valid graceful offline
+PASS online null timestamp
+PASS missing reportedAt
+PASS battery above maximum
+PASS battery below minimum
+PASS null battery
+PASS unknown state
+PASS invalid connection UUID
+PASS reject NaN token
+PASS reject infinity token
+PASS reject finite-range overflow
+PASS reject duplicate JSON key
+PASS reject malformed JSON
+PASS reject non-object payload
+jsonschema 4.26.0; Python 3.12.14
+46/46 checks passed

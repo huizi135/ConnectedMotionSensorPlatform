@@ -1,0 +1,31 @@
+# Local secrets and runtime data
+.env
+.env.*
+!.env.example
+secrets/
+infrastructure/mosquitto/data/
+infrastructure/mosquitto/log/
+infrastructure/postgres/data/
+artifacts/
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# .NET and IDEs
+[Bb]in/
+[Oo]bj/
+.vs/
+*.user
+*.suo
+TestResults/
+
+# Temporary files
+~$*
+.DS_Store
+Thumbs.db

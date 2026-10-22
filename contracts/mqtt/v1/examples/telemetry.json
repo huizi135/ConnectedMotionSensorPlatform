@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "messageId": "50aec828-b1a6-45d7-8d9a-e48b3e51ea75",
+  "deviceId": "sim-001",
+  "streamId": "a6e91f23-4bbc-49c0-a438-ea8f092a3b88",
+  "sequence": 42,
+  "sampledAt": "2026-10-22T12:00:00.123Z",
+  "accelerationMps2": {
+    "x": 0.03,
+    "y": -0.02,
+    "z": 9.81
+  },
+  "angularVelocityRadps": {
+    "x": 0.001,
+    "y": -0.002,
+    "z": 0.0
+  },
+  "simulation": {
+    "scenario": "idle"
+  }
+}

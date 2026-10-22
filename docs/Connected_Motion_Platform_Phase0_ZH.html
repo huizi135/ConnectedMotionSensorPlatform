@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Connected Motion Platform — Phase 0 中文手册</title><style>*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:24px}body{margin:0;background:#f3f5f7;color:#202832;font:16px/1.75 system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif}a{color:#185f98;text-decoration:none}a:hover{text-decoration:underline}.layout{max-width:1340px;margin:auto;display:grid;grid-template-columns:255px minmax(0,1fr);gap:32px;padding:32px 24px}aside{position:sticky;top:24px;align-self:start;max-height:92vh;overflow:auto;font-size:13px}aside strong{display:block;margin-bottom:12px;color:#34475a}aside a{display:block;padding:6px 9px;border-left:2px solid #d9e0e7}main{min-width:0;background:#fff;padding:44px 52px;border:1px solid #e0e5e9;border-radius:8px}h1,h2,h3,h4{line-height:1.3;color:#121b24;break-after:avoid}h1{font-size:31px;margin:0 0 24px}h2{font-size:25px;margin:44px 0 16px;border-top:1px solid #dfe5eb;padding-top:26px}h3{font-size:19px;margin:26px 0 10px}p{margin:0 0 14px;overflow-wrap:anywhere}table{width:100%;border-collapse:collapse;margin:18px 0 24px;font-size:14px;table-layout:fixed}td,th{border:1px solid #d5dfe7;text-align:left;vertical-align:top;padding:11px 13px;overflow-wrap:anywhere}th{background:#eaf0f5;color:#24394d}td p,th p{margin:0}tbody tr:nth-child(even){background:#fafbfd}pre{background:#17232f;color:#edf5fd;padding:20px;border-radius:5px;overflow-x:auto;font:13px/1.6 Consolas,"Cascadia Code",monospace;margin:18px 0 24px;white-space:pre}code{font-family:Consolas,"Cascadia Code",monospace}.meta{font-size:13px;color:#566575}.phase{margin-top:42px;border-top:2px solid #9badbd;padding-top:28px}.phase:first-child{border-top:0;padding-top:0;margin-top:0}.phase h2{border:0;padding:0;margin-top:0}.phase p{font-size:14px;line-height:1.55;margin-bottom:12px}.phase h3{font-size:16px;margin:20px 0 9px}footer{margin-top:36px;color:#687581;font-size:12px;border-top:1px solid #e2e7eb;padding-top:16px}@media(max-width:850px){.layout{display:block;padding:16px}aside{position:static;max-height:none;margin-bottom:20px}main{padding:26px 22px}h1{font-size:25px}h2{font-size:22px}table{font-size:12px}pre{font-size:12px}}@page{size:A4;margin:16mm}@media print{body{background:#fff;font-size:10pt;line-height:1.45}.layout{display:block;padding:0;max-width:none}aside,footer,.formatnote{display:none}main{padding:0;border:0}h1{font-size:20pt}h2{font-size:16pt;margin-top:24px;padding-top:12px}h3{font-size:12pt}a{color:inherit}table{font-size:9pt}tr{break-inside:avoid}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f1f3f5;color:#111;font-size:8pt;padding:10px;break-inside:avoid}.phase{break-before:page;border:0;margin:0;padding:0}.phase:first-child{break-before:auto}.phase p{font-size:8.5pt;line-height:1.25;margin-bottom:7px}.phase h2{font-size:15pt;margin-bottom:8px}.phase h3{font-size:10pt;margin:9px 0 5px}}</style></head><body><div class="layout"><aside><strong>Connected Motion Platform — Phase 0 中文手册</strong><a href="#section-1">项目计划与 Phase 0 实施手册 中文版</a><a href="#section-4">1 MVP 范围与阶段路线</a><a href="#section-8">2 系统架构与模块职责</a><a href="#section-11">3 Repository Structure</a><a href="#section-12">4 MQTT 消息契约</a><a href="#section-13">5 设备状态 数据存储与 API</a><a href="#section-14">6 故障语义 可靠性与扩展</a><a href="#section-17">7 Windows Git 操作与验收</a><a href="#section-19">8 文档提交与阶段验收</a><a href="#section-20">9 观测数据 场景标签与检测结果</a><a href="#section-24">附录 短 ADR 1 至 2</a><a href="#section-27">附录 短 ADR 3 至 4</a><a href="#section-30">附录 短 ADR 5 至 6</a><a href="#section-33">附录 短 ADR 7 至 8</a><a href="#verified-identity">已验证记录与下一步 文件基线</a></aside><main><section id="repository-current-status"><h2>Current repository workflow 当前仓库工作流</h2><p>Updated 2026-10-22. GitHub is now the source of truth. These files are included on the docs/phase-0-baseline work branch for pull-request review. The design baseline, ADRs, schemas and examples are prepared; 46 contract checks passed in the author environment. Windows synchronization and runtime tests remain pending. Earlier sections retain historical steps and may describe an older snapshot.</p><p>现已改为 GitHub 直接修改文件、工作分支及 PR 评审。无需重复下载 ZIP。Git、Windows Clone、仓库级身份、基础配置、HTML 清单及 README 编码已验证；本次文件在工作分支中准备，46 项契约检查在制作者环境通过。本地同步和运行测试待验证。下文旧步骤属于历史记录，以本节最新状态为准。</p><p>Windows: back up current local changes with git stash push -u, verify a clean working tree, then fetch and switch to the shared branch. Keep the stash until comparison; do not immediately pop it over matching tracked files. See docs/git-workflow.md for exact commands. Windows 先备份未提交内容，确认干净后切换远程工作分支。</p></section><p class="meta formatnote">可离线打开 · 内容目录 · 浏览器打印支持</p><h1>Connected Motion Sensor Platform</h1><h2 id="section-1">项目计划与 Phase 0 实施手册 中文版</h2><p>版本 0.4  |  2026 年 10 月 22 日  |  项目负责人 Huizi Yang</p><p>本手册与英文版并行保留，保存项目目标、设计、操作步骤与验收记录。配套双语技术案例册包含 Phase 0 至 Phase 6，每阶段一页。当前案例均为设计和测试计划；未执行的工作不标为完成。</p><h3 id="section-2">背景与职业目标</h3><p>这是独立的个人工程项目，灵感来自 Aiving Jump Tracker，不复制其专有算法或内部架构。目标是构建数据采集、MQTT、后端、数据库、API、监控及分析的端到端平台，用作 Senior Software Engineer、Systems Engineer、IoT Engineer 和 Software Architect 的作品。</p><p>已有四年以上 C#/.NET、REST API、Azure、Unity、BLE、实时系统、软硬件集成、CI/CD 与测试经验。在 Alsensia 参与可穿戴传感器与 VR 集成，并带领另一位工程师。项目以 .NET 为核心；Python 用于模拟及分析，逐步补齐其工程实践。</p><h3 id="section-3">约束与方法</h3><p>目前没有 Sensor、ESP32 或 IMU。第一版全软件模拟，优先 Windows，完整 MVP 可在本地运行且不依赖付费云。优先开源工具与模块化设计，暂不引入复杂微服务或 Kubernetes。每阶段解释原理、实现、运行、测试、故障分析并验收后，再进入下一阶段。</p><table><thead><tr><th><p>检查项</p></th><th><p>当前状态</p></th></tr></thead><tbody><tr><td><p>Git 安装</p></td><td><p>已通过：2.41.0.windows.3；路径 C:\Program Files\Git\cmd\git.exe</p></td></tr><tr><td><p>GitHub 仓库</p></td><td><p>已核实：私有仓库，默认 main，仅 README.md</p></td></tr><tr><td><p>本地 Clone</p></td><td><p>已通过：main 跟踪 origin/main，工作区干净，提交 9c73dfb</p></td></tr><tr><td><p>提交与推送</p></td><td><p>文档尚未进入仓库，待验证</p></td></tr><tr><td><p>Phase 1 至 6</p></td><td><p>尚未开始</p></td></tr></tbody></table><p>已核实仓库：https://github.com/huizi135/ConnectedMotionSensorPlatform</p><h2 id="section-4">1 MVP 范围与阶段路线</h2><p>Phase 1 通信原型和完整 MVP 是两个里程碑。Phase 1 证明消息能到达订阅端；Phase 1 至 Phase 3 完成后，才形成可存储、可查询、可观察的 MVP。</p><table><thead><tr><th><p>阶段</p></th><th><p>交付和验收重点</p></th></tr></thead><tbody><tr><td><p>Phase 0</p></td><td><p>设计、契约、目录、Git 和 ADR；边界明确且可追踪</p></td></tr><tr><td><p>Phase 1</p></td><td><p>Python 虚拟 IMU 与 Mosquitto；多设备、状态、重连和契约验证</p></td></tr><tr><td><p>Phase 2</p></td><td><p>.NET Consumer、PostgreSQL 与 API；幂等、事务、分页与异常路径</p></td></tr><tr><td><p>Phase 3</p></td><td><p>Compose、日志、指标和 Grafana；可复现启动与健康检查</p></td></tr><tr><td><p>Phase 4</p></td><td><p>断线、重复、乱序、缺失、数据库故障与 100 至 1000 台设备负载实验</p></td></tr><tr><td><p>Phase 5</p></td><td><p>数据清洗、质量检查、规则式检测与趋势；可追溯且可复现</p></td></tr><tr><td><p>Phase 6 可选</p></td><td><p>ESP32、IMU、BLE Gateway、ESP-IDF、FreeRTOS、Azure 和 IaC；独立验收</p></td></tr></tbody></table><h3 id="section-5">MVP 纳入</h3><p>1 至 10 台虚拟设备，起步每台 10 Hz；加速度、角速度、设备身份、UTC 时间和电量；Idle、Motion、Jump、Landing 场景；MQTT 发布订阅、连接状态、格式验证、数据库去重；设备与历史读数 API；本地部署、基础监控、有界重试和明确的失败边界。10 Hz 用于调试，不代表真实运动分析要求。</p><h3 id="section-6">暂缓范围</h3><p>真实硬件、BLE、OTA、账户、多租户、移动端、WebSocket、高可用集群、完整离线补传、真实动作识别准确率承诺和千设备容量保证，均不是 MVP 前置条件。训练会话和运动事件表在业务规则明确后再增加。</p><h3 id="section-7">最终交付</h3><p>源码、英文 README、架构图、Docker Compose、API 文档、数据库 Schema 和迁移、自动化测试、监控 Dashboard、可靠性结果、性能报告、ADR、技术挑战及 Lessons Learned。注明模拟数据、硬件状态和每个实验的真实条件。</p><h2 id="section-8">2 系统架构与模块职责</h2><p>采用模块化单体后端：ASP.NET Core 同时承载 REST API 与 MQTT BackgroundService。接收和查询隔离职责，第一版保持一个部署单元；当采集负载干扰查询或需要独立扩容时，再考虑拆分。</p><table><thead><tr><th><p>数据路径</p></th><th><p>职责</p></th></tr></thead><tbody><tr><td><p>Simulator → Mosquitto</p></td><td><p>生成可复现信号，发布 telemetry 和 status</p></td></tr><tr><td><p>Mosquitto → MQTT Adapter</p></td><td><p>订阅、路由并传递 Topic 与 MQTT 元数据</p></td></tr><tr><td><p>Adapter → 有界队列 → Processor</p></td><td><p>解耦接收与写入，验证、去重、受控背压</p></td></tr><tr><td><p>Processor → PostgreSQL</p></td><td><p>事务保存、唯一约束与迁移</p></td></tr><tr><td><p>REST API → Query → PostgreSQL</p></td><td><p>设备及历史数据查询，限定范围并分页</p></td></tr><tr><td><p>Backend → Prometheus → Grafana</p></td><td><p>吞吐、延迟、错误率和队列深度</p></td></tr><tr><td><p>未来 IMU → BLE Gateway → MQTT</p></td><td><p>转换坐标与单位，适配契约</p></td></tr></tbody></table><p>模拟器不实现 BLE/GATT。未来硬件替换数据源时，后端沿用契约，但配对、分包、网关重连及安全需要另行设计和验证。</p><h3 id="section-9">有界队列与持久化</h3><p>队列吸收短时波动，但容量必须受限。满载时采用明确等待或受控拒绝策略，并结合 MQTT 确认行为验证。内存队列没有持久化保证。回调结束、Broker 确认、数据库提交是不同事件；不能以 QoS 1 宣称端到端零丢失。</p><h3 id="section-10">Windows 开发部署</h3><p>Python 和 .NET 初期在 Windows 本机运行，便于调试；Mosquitto、PostgreSQL 和后续监控通过 Docker 运行。本机用 localhost，容器间用 Compose 服务名。Phase 3 加入应用容器。Broker 端口仅绑定回环地址，显式认证，凭据不提交 Git。Docker 环境及适用条件在 Phase 1 核实。</p><h2 id="section-11">3 Repository Structure</h2><p>使用 Monorepo，使契约、模拟器与后端同步提交。以下是目标结构；Git 不追踪空目录，按阶段创建有实际内容的文件。</p><pre><code>connected-motion-platform/
+  README.md
+  .gitignore
+  .gitattributes
+  .editorconfig
+  .env.example
+  contracts/mqtt/v1/
+    telemetry.schema.json
+    status.schema.json
+    examples/
+  simulator/
+    pyproject.toml
+    src/motion_simulator/
+      cli.py
+      device.py
+      scenarios.py
+      contracts.py
+      mqtt_client.py
+    tests/
+  backend/
+    MotionPlatform.sln
+    src/
+      MotionPlatform.Host/
+      MotionPlatform.Application/
+      MotionPlatform.Infrastructure/
+    tests/
+      MotionPlatform.UnitTests/
+      MotionPlatform.IntegrationTests/
+  infrastructure/
+    compose.yaml
+    mosquitto/
+    observability/prometheus/
+    observability/grafana/
+  tools/verify_mqtt.py
+  docs/
+    architecture.md
+    mqtt-contract.md
+    local-development-windows.md
+    adr/
+    testing/
+  .github/workflows/</code></pre><p>Host 管启动、配置、HTTP 和后台任务；Application 管用例与接口；Infrastructure 管 MQTTnet 和 PostgreSQL 适配。初期不单独创建 Domain 项目。HTML 保留学习与验收；Markdown 保存易评审设计；Schema 作为协议验证依据，变更时同步示例、测试与文档。中英文手册和双语案例册可放入 docs。</p><h2 id="section-12">4 MQTT 消息契约</h2><table><thead><tr><th><p>Topic</p></th><th><p>QoS 与 Retain</p></th></tr></thead><tbody><tr><td><p>motion/v1/devices/{deviceId}/telemetry</p></td><td><p>QoS 1；Retain false</p></td></tr><tr><td><p>motion/v1/devices/{deviceId}/status</p></td><td><p>QoS 1；Retain true</p></td></tr></tbody></table><p>后端订阅 motion/v1/devices/+/telemetry 和 motion/v1/devices/+/status。Topic 标识设备和消息类型，不按轴拆分，不放时间戳或 Message ID。</p><pre><code>{
+  &quot;schemaVersion&quot;: 1,
+  &quot;messageId&quot;: &quot;50aec828-b1a6-45d7-8d9a-e48b3e51ea75&quot;,
+  &quot;deviceId&quot;: &quot;sim-001&quot;,
+  &quot;streamId&quot;: &quot;a6e91f23-4bbc-49c0-a438-ea8f092a3b88&quot;,
+  &quot;sequence&quot;: 42,
+  &quot;sampledAt&quot;: &quot;2026-10-22T08:00:00.123Z&quot;,
+  &quot;accelerationMps2&quot;: {
+    &quot;x&quot;: 0.03,
+    &quot;y&quot;: -0.02,
+    &quot;z&quot;: 9.81
+  },
+  &quot;angularVelocityRadps&quot;: {
+    &quot;x&quot;: 0.001,
+    &quot;y&quot;: -0.002,
+    &quot;z&quot;: 0.0
+  },
+  &quot;simulation&quot;: {
+    &quot;scenario&quot;: &quot;idle&quot;
+  }
+}</code></pre><p>每条一个采样点。messageId 标识样本；streamId 标识采样流；sequence 从 0 递增。重试保留原 ID、序列和采样时间；进程重启生成新 streamId，单纯重连可以保持。streamId 不是训练会话 ID。</p><p>加速度 m/s²，包含重力；角速度 rad/s。设备局部右手坐标：X 前、Y 左、Z 上，旋转遵循右手定则；静止且 Z 向上约为 (0, 0, 9.81)。Gateway 统一转换，Unity 显式映射。</p><p>sampledAt 是 UTC 采样时间，后端另记 receivedAt。二者之差含时钟误差，不能未经同步就视为网络延迟。验证字段、版本、UUID、Topic 身份一致、非负序列、UTC 和有限数值；未知可选字段可忽略。格式错误与物理异常分开处理。simulation 是参考标签，不能作为检测输入或检测成功证据。</p><h2 id="section-13">5 设备状态 数据存储与 API</h2><pre><code>{
+  &quot;schemaVersion&quot;: 1,
+  &quot;deviceId&quot;: &quot;sim-001&quot;,
+  &quot;connectionId&quot;: &quot;1772e900-cc6f-433d-9ca9-d897f233030b&quot;,
+  &quot;state&quot;: &quot;online&quot;,
+  &quot;reportedAt&quot;: &quot;2026-10-22T08:00:00.000Z&quot;,
+  &quot;batteryPercent&quot;: 100
+}</code></pre><p>连接前注册 retained offline 遗嘱；连接后发 retained online 并定期心跳；正常退出主动发 offline。遗嘱不能预知实际断线时间，其 reportedAt 允许 null，后端另记观察时间。每次连接生成新 connectionId。保留状态可能过时，API 区分报告状态与依据最后消息时间推导的活跃状态。电量限定 0 至 100。</p><table><thead><tr><th><p>模型</p></th><th><p>字段与约束</p></th></tr></thead><tbody><tr><td><p>devices</p></td><td><p>device_id 主键；first_seen_at；last_telemetry_received_at；last_status_received_at；reported_connection_state；battery_percent</p></td></tr><tr><td><p>sensor_readings</p></td><td><p>message_id 主键；device_id；stream_id；sequence；sampled_at；received_at；加速度及角速度三轴</p></td></tr><tr><td><p>唯一与索引</p></td><td><p>device_id + stream_id + sequence 唯一；device_id + sampled_at + message_id 查询索引</p></td></tr><tr><td><p>冲突处理</p></td><td><p>同身份不同内容记录冲突，不覆盖原样本</p></td></tr></tbody></table><pre><code>GET /api/v1/devices
+GET /api/v1/devices/{deviceId}
+GET /api/v1/devices/{deviceId}/readings
+    ?from=...&amp;to=...&amp;limit=...&amp;cursor=...
+GET /health/live
+GET /health/ready</code></pre><p>限制历史查询时间范围和条数；live 说明进程可响应，ready 说明关键依赖和接收链路就绪。依赖故障不必然通过重启修复。Python/paho-mqtt、.NET/MQTTnet/ASP.NET Core、PostgreSQL、Compose、Prometheus/Grafana、xUnit/pytest/GitHub Actions 和后续 pandas 的具体版本在各阶段实施时核实并锁定。</p><h2 id="section-14">6 故障语义 可靠性与扩展</h2><table><thead><tr><th><p>情况</p></th><th><p>设计行为与边界</p></th></tr></thead><tbody><tr><td><p>重复</p></td><td><p>数据库唯一约束去重并计数</p></td></tr><tr><td><p>乱序和缺口</p></td><td><p>接受合法迟到样本；缺口先记为待核实</p></td></tr><tr><td><p>非法消息</p></td><td><p>拒绝并计数，日志避免无限重复刷屏</p></td></tr><tr><td><p>Broker 故障</p></td><td><p>自动重连；初期不保证完整补传断线期间数据</p></td></tr><tr><td><p>数据库故障</p></td><td><p>有界重试、背压和 ready 异常</p></td></tr><tr><td><p>后端退出</p></td><td><p>内存未提交数据存在丢失窗口</p></td></tr></tbody></table><p>Phase 4 再通过实验决定磁盘缓冲、应用层确认、持久会话或其他恢复机制。必须区分 MQTT 协议投递与业务入库，恢复连接不等于数据完整，QoS 1 不等于 exactly once 持久化。</p><h3 id="section-15">设备数量增加一百倍</h3><p>先估算设备数 × 采样率 × 消息大小；测量吞吐、P95/P99 处理耗时、CPU、内存、队列和数据库速率。按真实瓶颈考虑批量消息与写入、保留策略和分区、独立采集进程、并行消费及分区内顺序，不凭设备数直接选择微服务。</p><p>负载报告记录机器配置、软件版本、采样率、持续时间、数据量、故障注入、重复和丢失定义及优化前后结果。100 至 1000 台设备是实验目标，尚非能力声明。</p><h3 id="section-16">数据分析边界</h3><p>Phase 5 以 Python/pandas 清洗缺失、异常和重复，计算特征、规则事件及趋势，并保留原始数据溯源。事件识别仅为工程示例，不能宣称真实花样滑冰识别准确率。标签与观测的隔离方法见后文专页。</p><h2 id="section-17">7 Windows Git 操作与验收</h2><p>Git 2.41.0.windows.3 已验证，路径 C:\Program Files\Git\cmd\git.exe。2026 年 10 月 22 日用户 PowerShell 输出证实 clone 成功：本地路径 C:\Users\Admin\Documents\GitHub\ConnectedMotionSensorPlatform；main 跟踪 origin/main，工作区干净；远程 fetch/push 地址正确；初始提交 9c73dfb。以下命令作为复现参考保留，当前无需再次克隆。</p><p>先创建或进入父目录，运行 Test-Path；返回 False 才执行 clone。若为 True，先检查现有目录，不删除或覆盖。</p><pre><code>New-Item -ItemType Directory -Path &quot;C:\Users\Admin\Documents\GitHub&quot; -Force
+Set-Location &quot;C:\Users\Admin\Documents\GitHub&quot;
+Test-Path .\ConnectedMotionSensorPlatform
+git clone https://github.com/huizi135/ConnectedMotionSensorPlatform.git
+Set-Location .\ConnectedMotionSensorPlatform
+git status
+git remote -v
+git branch -vv
+git log -1 --oneline</code></pre><p>此步已通过：路径正确、工作区干净、远程正确、main 跟踪 origin/main，已有提交 9c73dfb。clone 已建立仓库与 origin，无需 git init 或 remote add。下一步在该目录配置仓库级提交身份，再建立文档基线。</p><h3 id="section-18">配置本仓库身份</h3><pre><code>git config --local user.name &quot;Huizi Yang&quot;
+git config --local user.email &quot;YOUR_COMMIT_EMAIL&quot;
+git config --local --get user.name
+git config --local --get user.email</code></pre><p>替换提交邮箱；可用 GitHub 设置页提供的确切 noreply 地址。local 仅影响当前仓库。找不到 Git 时重开终端并检查 PATH；非仓库错误时检查路径；身份错误时检查 local 设置；认证失败时保留错误原文诊断。下一轮先验证 clone 输出，再建立文档文件。</p><h2 id="section-19">8 文档提交与阶段验收</h2><p>更新已有 README，增加 .gitignore、.gitattributes、docs/architecture.md、docs/mqtt-contract.md 与 docs/adr。保留中英文手册及案例册。忽略 .env、虚拟环境、缓存、bin/obj、IDE 临时文件和运行数据；保留 .env.example。DOCX 按二进制处理，避免无意义换行转换。</p><pre><code>git status --short
+git add README.md .gitignore .gitattributes docs
+git diff --cached --stat
+git diff --cached --name-only
+git commit -m &quot;docs: establish phase 0 architecture baseline&quot;
+git log -1 --oneline
+git status
+git remote -v
+git branch -vv
+git push</code></pre><p>验收：无凭据和运行数据被暂存；有文档提交；工作区干净；远程显示相同提交。出现拒绝推送先检查两侧历史，不强制推送。</p><table><thead><tr><th><p>Phase 0 检查</p></th><th><p>状态与证据</p></th></tr></thead><tbody><tr><td><p>Git</p></td><td><p>已通过，用户版本及路径输出</p></td></tr><tr><td><p>远程</p></td><td><p>已通过只读检查；README 和 main 已确认</p></td></tr><tr><td><p>Clone 与身份</p></td><td><p>Clone 与仓库级提交身份均已通过</p></td></tr><tr><td><p>架构与契约</p></td><td><p>已记录；Schema 和仓库文件待创建与检查</p></td></tr><tr><td><p>文档提交与推送</p></td><td><p>待执行并记录提交哈希</p></td></tr></tbody></table><p>Phase 1 准入：Phase 0 文件及契约验收。完成标准：单设备频率正确；三台设备五分钟身份序列独立；固定种子复现数值；订阅端验证契约；retained 与遗嘱测试；Broker 重启后恢复且记录时间和丢失边界。Phase 2 测落库、幂等、冲突、分页及数据库异常；Phase 3 测新环境启动、日志指标与健康；Phase 5 测数据溯源、质量与独立标签评估。</p><p>每次记录日期、步骤、目标、前置条件、变更、命令、预期与实际结果、证据、失败与修复、结论和 Git 提交。未执行标为待执行；不使用计划值冒充结果。每阶段复盘替代方案、边界、确认点、丢失窗口、恢复证据及规模假设。</p><p>官方参考：https://git-scm.com/install/windows ；https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup ；https://git-scm.com/docs/git-init 。此前于 2026 年 10 月 21 日检索；本文不声明最新版本。</p><h2 id="section-20">9 观测数据 场景标签与检测结果</h2><p>模拟器知道自己安排了什么场景；后端算法必须根据传感器信号独立判断发生了什么。前者是参考，后者是待验证结果。</p><table><thead><tr><th><p>层次</p></th><th><p>内容与用途</p></th></tr></thead><tbody><tr><td><p>观测 Observations</p></td><td><p>加速度、角速度、时间、设备 ID；供检测器输入。</p></td></tr><tr><td><p>标签 Reference labels</p></td><td><p>模拟器生成的 jump 区间；只用于调试、评估和有条件的监督训练。</p></td></tr><tr><td><p>结果 Predictions</p></td><td><p>检测器独立输出事件类型、时间区间、规则版本；再与参考标签匹配。</p></td></tr></tbody></table><h3 id="section-21">错误和正确做法</h3><pre><code># Incorrect: copies the answer rather than detecting an event
+if message[&quot;simulation&quot;][&quot;scenario&quot;] == &quot;jump&quot;:
+    emit_event(&quot;jump&quot;)
+# Correct boundary: detector receives observations only
+observations = project_sensor_fields(message)
+predictions = detector.detect(window(observations))
+evaluation = compare(predictions, reference_intervals)</code></pre><p>例：模拟器把 10.0 至 10.8 秒设为 jump。检测器只能看到时间窗里的加速度和角速度，并独立输出 10.1 至 10.7 秒的候选事件。评估器再匹配区间。若落地的一次峰值被误认成跳跃，应算误报，不能靠读取标签修正输出。</p><h3 id="section-22">第一版如何保持简单</h3><p>Phase 1 为便于调试，消息可保留可选 simulation 字段，但检测入口使用独立类型且显式投影观测字段。Phase 5 将参考区间保存到独立数据集并在检测后关联；不要求现在增加新的 MQTT 服务。设备 ID、streamId 或命名规则也不能隐式编码答案。</p><h3 id="section-23">验证方法与结论边界</h3><p>固定观测数据，删除、打乱或改名标签，预测必须保持不变；改变输入信号时输出才可能改变。规则阈值只在开发集调优，按采样流或独立种子划分留出集，避免重叠时间窗跨集合。评估事件级 precision、recall 和时间误差；先定义一对一匹配和容差。合成场景标签可能与波形不完全一致，需检查生成器。合成评估通过也不能证明真实硬件或真实跳跃准确率。</p><h2 id="section-24">附录 短 ADR 1 至 2</h2><h3 id="section-25">ADR 001 软件优先</h3><p>状态 设计基线 待实施验证</p><p><strong>背景  </strong>目前没有硬件，但需要开始后端实践。</p><p><strong>决定  </strong>模拟 IMU 直接发布 MQTT，保留 BLE 适配边界。</p><p><strong>替代方案  </strong>先购买硬件；实现虚拟 BLE；回放已有采样文件。</p><p><strong>理由与代价  </strong>直接 MQTT 易复现且不依赖硬件；代价是未验证 BLE 配对、分包与无线行为。</p><p><strong>重新评估条件  </strong>本地链路验收后，有硬件及明确 BLE 需求时重新评估。</p><h3 id="section-26">ADR 002 模块化单体</h3><p>状态 设计基线 待实施验证</p><p><strong>背景  </strong>单人开发需要清晰职责，也需要控制部署成本。</p><p><strong>决定  </strong>接收与 REST 查询同进程运行，模块分离。</p><p><strong>替代方案  </strong>独立 Worker/API 服务；无服务器消费者。</p><p><strong>理由与代价  </strong>一个部署单元便于调试运维；代价是共享资源和故障影响。</p><p><strong>重新评估条件  </strong>实测出现查询干扰、不同可用性要求或独立扩容需求时再拆分。</p><h2 id="section-27">附录 短 ADR 3 至 4</h2><h3 id="section-28">ADR 003 JSON 单样本</h3><p>状态 设计基线 待实施验证</p><p><strong>背景  </strong>Python 与 .NET 需要可读的跨语言协议，起步频率较低。</p><p><strong>决定  </strong>使用版本化 JSON、每条一个样本、显式 SI 单位和坐标系。</p><p><strong>替代方案  </strong>Protobuf、CBOR、二进制帧或多样本批次。</p><p><strong>理由与代价  </strong>可读性有利调试和契约测试；重复元数据增加带宽与解析成本。</p><p><strong>重新评估条件  </strong>载荷或 CPU 开销实测限制目标采样率时，对编码和批次做对比实验。</p><h3 id="section-29">ADR 004 QoS 与幂等</h3><p>状态 设计基线 待实施验证</p><p><strong>背景  </strong>重试和重连可能产生重复，存储必须保留样本身份。</p><p><strong>决定  </strong>起步 QoS 1 加数据库唯一约束；重试保留 ID，内容冲突单独记录。</p><p><strong>替代方案  </strong>QoS 0 降低开销；QoS 2；应用确认加发送端持久化 outbox。</p><p><strong>理由与代价  </strong>去重可测试；确认不等于入库；元数据和唯一检查有成本。</p><p><strong>重新评估条件  </strong>Phase 4 明确可接受丢失和恢复要求，并测试提交与确认窗口后再加强保证。</p><h2 id="section-30">附录 短 ADR 5 至 6</h2><h3 id="section-31">ADR 005 优先 PostgreSQL</h3><p>状态 设计基线 待实施验证</p><p><strong>背景  </strong>MVP 同时需要设备关系信息及按时间查询读数。</p><p><strong>决定  </strong>采用普通表、迁移、唯一约束和设备时间索引。</p><p><strong>替代方案  </strong>时序扩展；专用时序数据库；对象存储保存原始数据。</p><p><strong>理由与代价  </strong>一个数据库减少运维；高频逐行存储可能昂贵且需保留策略。</p><p><strong>重新评估条件  </strong>实测写入、查询或保留数据量超过明确目标时再评估。</p><h3 id="section-32">ADR 006 有界内存队列</h3><p>状态 设计基线 待实施验证</p><p><strong>背景  </strong>数据库写入与 MQTT 接收速率不一致。</p><p><strong>决定  </strong>使用有界队列和显式背压；容量依据实测速率与内存限制。</p><p><strong>替代方案  </strong>同步写入；无界队列；磁盘缓冲或外部持久日志。</p><p><strong>理由与代价  </strong>限制内存并吸收短波动；可能阻塞接收，进程退出会损失队列数据。</p><p><strong>重新评估条件  </strong>故障持续时间或可接受丢失要求超出内存方案实验边界时，引入持久缓冲。</p><h2 id="section-33">附录 短 ADR 7 至 8</h2><h3 id="section-34">ADR 007 Windows 开发拓扑</h3><p>状态 设计基线 待实施验证</p><p><strong>背景  </strong>开发者熟悉 Windows 调试，同时需要可复现依赖。</p><p><strong>决定  </strong>初期本机运行应用，Compose 运行基础设施；Phase 3 容器化应用。</p><p><strong>替代方案  </strong>所有服务原生安装；全容器开发；远程环境。</p><p><strong>理由与代价  </strong>保留本机调试并复现服务；代价是两种网络地址及 Docker 环境依赖。</p><p><strong>重新评估条件  </strong>环境差异或上手成本变高，或电脑不能支持 Docker 时重新评估。</p><h3 id="section-35">ADR 008 采样与接收时间</h3><p>状态 设计基线 待实施验证</p><p><strong>背景  </strong>运动分析与传输诊断需要不同时间语义。</p><p><strong>决定  </strong>同时保存生产者 sampledAt 和后端 receivedAt，统一 UTC。</p><p><strong>替代方案  </strong>仅接收时间；采样计数重建时间轴；同步后的设备时间。</p><p><strong>理由与代价  </strong>保留事件和到达证据；时钟偏差使差值不能直接证明传输延迟。</p><p><strong>重新评估条件  </strong>真实设备或时间精度目标需要时，增加时钟质量与同步处理。</p><h2 id="verified-identity">已验证记录与下一步 文件基线</h2><p>用户输出证实 user.name 为 Huizi Yang，user.email 为用户选定邮箱，两项来源均为 file:.git/config。仓库级身份配置验收通过。下一步创建基础文件与目录，尚未在用户 Windows 执行验证，不提交或推送。</p><h3>.gitignore</h3><pre><code># Local secrets and runtime data
+.env
+.env.*
+!.env.example
+secrets/
+infrastructure/mosquitto/data/
+infrastructure/mosquitto/log/
+infrastructure/postgres/data/
+artifacts/
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# .NET and IDEs
+[Bb]in/
+[Oo]bj/
+.vs/
+*.user
+*.suo
+TestResults/
+
+# Temporary files
+~$*
+.DS_Store
+Thumbs.db
+</code></pre><h3>.gitattributes</h3><pre><code>* text=auto eol=lf
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.docx binary
+*.pdf binary
+*.png binary
+*.jpg binary
+*.zip binary
+</code></pre><h3>.editorconfig</h3><pre><code>root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{json,yml,yaml,html,css}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{ps1,bat,cmd}]
+end_of_line = crlf
+</code></pre><p>目标目录：docs/adr、docs/testing、contracts/mqtt/v1/examples。Git 不追踪空目录；暂时不创建占位实现。验收时使用 git status --short、git check-ignore 和 git check-attr 检查；Git 不跟踪本地身份设置，因此配置身份本身不会产生待提交文件。</p><footer>Version 0.4 · 2026-10-22 · Clone verified at 9c73dfb · Local commit identity verified · Repository files pending</footer></main></div></body></html>
