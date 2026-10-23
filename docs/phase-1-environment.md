@@ -246,3 +246,47 @@ if startup or pulling fails instead of reinstalling blindly.
 
 The above are instructions, not completed installation or container results.
 No simulator/MQTT implementation has started yet.
+
+## Docker CLI present but engine unreachable 2026-10-23
+
+Owner output:
+- docker --version: Docker version 29.9.2, build a82e528.
+- docker compose version: Docker Compose version v5.6.1.
+- docker info --format '{{.OSType}}': cannot connect to the Docker API at
+  npipe:////./pipe/docker_engine; the system cannot find the file specified.
+
+CLI and Compose discovery passed. Engine readiness and container execution are
+not verified. This error does not establish a need to reinstall. It can reflect
+a Desktop engine that is not started/ready or an endpoint/context override.
+
+Next:
+1. Open Docker Desktop from the Windows Start menu.
+2. Complete its first-run prompts and wait for engine startup. If Desktop is
+   absent from the menu, report that rather than assuming the GUI is installed.
+3. If Desktop displays an error, retain its exact message.
+4. In a new PowerShell terminal, run:
+
+```powershell
+docker context ls
+docker info --format '{{.OSType}}'
+```
+
+Expected: an accessible local Linux engine and linux as the info result.
+Do not switch contexts or change global Docker variables without inspecting
+the context list first. Docker contexts define which engine endpoint the CLI uses.
+
+If it remains unreachable despite a running Desktop, inspect:
+
+```powershell
+Get-Item Env:DOCKER_HOST,Env:DOCKER_CONTEXT -ErrorAction SilentlyContinue
+```
+
+No output means these overrides are absent in the current session. Do not delete
+contexts, reset Desktop data or reinstall as the first troubleshooting action.
+
+Only after the engine is reachable, run docker run --rm hello-world. The smoke
+test remains pending. Mosquitto and sensor implementation are not yet started.
+
+References consulted 2026-10-23:
+- https://docs.docker.com/desktop/setup/install/windows-install/
+- https://docs.docker.com/engine/manage-resources/contexts/
