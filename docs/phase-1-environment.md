@@ -1,8 +1,10 @@
 # Phase 1 Windows environment inspection
 
-Status: partial Windows inspection recorded on 2026-10-23. Both py and python
-report Python 3.12.3. Docker commands are not recognized in this PowerShell
-session. Installation status, WSL and Docker engine readiness remain unknown.
+Status: Windows virtual environment and contract regression checks passed on
+2026-10-23 with Python 3.12.3 and jsonschema 4.26.0 (46/46). Docker CLI is
+unresolved and neither default Desktop path was found. WSL 3.0.3 installed and
+VirtualMachinePlatform enabling succeeded, explicitly requiring a reboot.
+Post-reboot WSL and firmware virtualization state are still unverified.
 No simulator or broker implementation is included in this step.
 
 ## Objective
@@ -148,3 +150,55 @@ Sources consulted 2026-10-23:
 - https://docs.docker.com/desktop/features/wsl/
 
 See [the bilingual environment record](Phase1_Environment_Record_ZH_EN.html).
+
+## Follow-up evidence 2026-10-23
+
+- Interpreter: repository-local .venv/Scripts/python.exe, Python 3.12.3.
+- jsonschema 4.26.0 installed; all 46 contract checks passed on Windows.
+- git status --short returned no output after validation: clean worktree.
+- Both default Docker Desktop executable-path checks returned False; a custom
+  install is not excluded. The docker command remains unresolved.
+- Running wsl --version triggered an interactive WSL installation. Output reports
+  WSL 3.0.3.0 and kernel 6.18.54.1-1 installed.
+- VirtualMachinePlatform enabling completed successfully and explicitly reported:
+  changes will not be effective until the system is rebooted.
+- wsl --status, run before that required reboot, reported default version 2 and
+  inability to start WSL2 due to virtualization. This cannot by itself establish
+  that firmware virtualization is disabled.
+- WSL1 optional-component advice is not a requirement to use the planned WSL2 path.
+- A stray [O command produced an unrelated parser error.
+
+See [Windows contract output](testing/mqtt-contract-windows-validation.txt).
+The saved text is owner-supplied execution evidence, not an assistant execution
+on the owner's machine. Dependency installation output is not a complete lockfile.
+
+## Next action: reboot before changing more settings
+
+Save open work and use Windows Start -> Power -> Restart. Do not repeatedly run
+installation commands or change firmware settings before observing post-reboot
+state. Microsoft troubleshooting explicitly requires restarting after enabling
+Virtual Machine Platform.
+
+After restart:
+
+```powershell
+wsl --version
+wsl --status
+wsl --list --verbose
+```
+
+Also inspect Task Manager -> Performance -> CPU -> Virtualization and report
+Enabled or Disabled. Do not infer this value from the pre-reboot error alone.
+
+If the error persists, collect the exact output and firmware/OS virtualization
+evidence, then select a targeted fix. If a WSL distribution is not installed,
+that alone is not an error for Docker Desktop: its Windows WSL2 backend does not
+require a separately installed Ubuntu distribution.
+
+Docker Desktop installation/readiness is still pending; do not count this step
+as MQTT or broker runtime success.
+
+References:
+- https://learn.microsoft.com/en-us/windows/wsl/troubleshooting
+- https://docs.docker.com/desktop/features/wsl/
+Consulted 2026-10-23.

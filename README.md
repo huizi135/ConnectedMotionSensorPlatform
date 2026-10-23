@@ -23,8 +23,10 @@ Prepared in this Phase 0 change set:
 - Repository configuration, bilingual HTML guides and implementation records.
 - Contract regression checks: 46/46 passed in the author environment.
 
-Windows execution of the contract runner and MQTT runtime behavior remain
-unverified. The Phase 0 branch has been synchronized on Windows with a clean
+Windows execution of the contract runner also passed: Python 3.12.3 with
+jsonschema 4.26.0, 46/46 checks, repository-local .venv and clean Git status.
+MQTT runtime behavior remains unverified. WSL installation requires a reboot;
+Docker Desktop and the broker are not yet ready. The Phase 0 branch has been synchronized on Windows with a clean
 working tree. Phase 1 starts with environment inspection.
 
 Application implementation has not started.
