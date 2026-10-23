@@ -8,12 +8,9 @@ from pathlib import Path
 from datetime import datetime, timezone
 import argparse
 import json
-import queue
 import socket
 import subprocess
 import sys
-import threading
-import time
 import uuid
 
 from validate_contracts import validators, validate_message
@@ -22,11 +19,8 @@ ROOT = Path(__file__).resolve().parents[1]
 COMPOSE = ROOT / 'infrastructure/compose.yaml'
 
 
-def command(client, *args, tty=False):
-    # A TTY makes the subscriber's C stdout line-buffered. Python bufsize
-    # affects only Python's reader, not the child process inside the container.
-    options = ['--interactive=false'] if tty else ['-T']
-    return ['docker', 'compose', '--file', str(COMPOSE), 'exec', *options,
+def command(client, *args):
+    return ['docker', 'compose', '--file', str(COMPOSE), 'exec', '-T',
             'mosquitto', client, *args]
 
 
@@ -47,14 +41,6 @@ def expect_denied(label, args, raw=None, *, publish_refusal=False):
     if not explicit_refusal or (rc == 0 and not rejected_publish):
         raise RuntimeError(f'{label}: expected explicit authorization refusal; exit={rc}; output={output.strip()}')
     print(f'PASS {label}: explicitly refused')
-
-
-def read_lines(stream, messages):
-    try:
-        for line in stream:
-            messages.put(line.rstrip('\r\n'))
-    finally:
-        messages.put(None)
 
 
 def main():
@@ -80,74 +66,47 @@ def main():
                   [*common, '-u', backend['username'], '-P', backend['password'], '-s'], raw,
                   publish_refusal=True)
 
-    messages = queue.Queue()
-    subscriber = subprocess.Popen(
-        command('mosquitto_sub', *common, '-u', backend['username'], '-P', backend['password'],
-                '-v', '-d', '-C', '1', '-W', '30', tty=True), cwd=ROOT,
-        text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1,
-    )
-    reader = threading.Thread(target=read_lines, args=(subscriber.stdout, messages), daemon=True)
-    reader.start()
-    diagnostics = []
+    # Register a short-lived session synchronously. -E exits after SUBACK;
+    # complete output is collected at process exit, without live log parsing.
+    session_id = 'smoke-session-' + uuid.uuid4().hex
+    subscriber_args = [*common, '-u', backend['username'], '-P', backend['password'],
+                       '-i', session_id]
 
-    def readiness_error(reason):
-        # Diagnostics must not disclose local development passwords.
-        detail = ' | '.join(diagnostics[-12:]) or '(no client output received)'
-        for role in (backend, publisher):
-            detail = detail.replace(role['password'], '[REDACTED]')
-        return RuntimeError(reason + ' Client output: ' + detail)
+    def checked(client, args, stage, raw=None):
+        rc, output = execute(client, *args, raw=raw)
+        if rc or 'not authori' in output.lower():
+            for role in (backend, publisher):
+                output = output.replace(role['password'], '[REDACTED]')
+            raise RuntimeError(f'{stage}: exit={rc}; output={output.strip()[-2000:]}')
+        return output
 
     try:
-        # Wait for the actual SUBACK, not a guessed sleep before publishing.
-        deadline = time.monotonic() + 12
-        while time.monotonic() < deadline:
-            try:
-                line = messages.get(timeout=0.25)
-            except queue.Empty:
-                continue
-            if line is None:
-                raise readiness_error('Subscriber exited before SUBACK.')
-            diagnostics.append(line)
-            if 'not authori' in line.lower():
-                raise readiness_error('Subscriber authorization refused.')
-            if 'received suback' in line.lower():
-                break
-        else:
-            raise readiness_error('Subscriber readiness timed out before SUBACK.')
-        rc, output = execute('mosquitto_pub', *common, '-u', publisher['username'],
-                             '-P', publisher['password'], '-s', raw=raw)
-        if rc:
-            raise RuntimeError(f'Authenticated publish failed (exit {rc}): {output.strip()}')
-        matched = False
-        deadline = time.monotonic() + 12
-        while time.monotonic() < deadline:
-            try:
-                line = messages.get(timeout=0.25)
-            except queue.Empty:
-                continue
-            if line is None:
-                break
-            if line.startswith(topic + ' '):
-                received = json.loads(line[len(topic) + 1:])
-                if received != payload:
-                    raise RuntimeError('Received payload differs from the generated sample.')
-                matched = True
-                break
-        if not matched:
-            raise RuntimeError('Expected sample not received by the authenticated backend subscriber.')
-        if subscriber.wait(timeout=5):
-            raise RuntimeError('Subscriber returned a failure status.')
+        checked('mosquitto_sub', [*subscriber_args, '-c', '-x', '60', '-E', '-W', '10'],
+                'Subscription registration')
+        print('PASS backend subscription acknowledged; temporary session registered')
+        checked('mosquitto_pub',
+                [*common, '-u', publisher['username'], '-P', publisher['password'], '-s'],
+                'Authenticated publish', raw)
+        # QoS 1 queues the sample for this registered, briefly offline session.
+        output = checked('mosquitto_sub',
+                         [*subscriber_args, '-c', '-x', '0', '-v', '-C', '1', '-W', '10'],
+                         'Receive queued sample')
+        received = [line[len(topic) + 1:] for line in output.splitlines()
+                    if line.startswith(topic + ' ')]
+        if len(received) != 1 or json.loads(received[0]) != payload:
+            raise RuntimeError('Expected identical JSON sample was not received.')
         print('PASS simulator publish -> backend subscribe: complete JSON payload matches')
-        print('Broker smoke checks passed. No persistence, restart, retain or simulator claims yet.')
+        print('Broker smoke checks passed. Temporary session delivery only; '
+              'no restart, disk durability, retain or simulator claims yet.')
     finally:
-        if subscriber.poll() is None:
-            subscriber.terminate()
-            try:
-                subscriber.wait(timeout=3)
-            except subprocess.TimeoutExpired:
-                subscriber.kill()
-                subscriber.wait(timeout=3)
-        # -W 30 also bounds the in-container subscriber if docker exec is interrupted.
+        # Clean Start + zero expiry clears any remaining test session.
+        # If cleanup cannot connect, the original session expires after 60 s.
+        try:
+            checked('mosquitto_sub', [*subscriber_args, '-x', '0', '-E', '-W', '5'],
+                    'Temporary session cleanup')
+        except (RuntimeError, OSError, subprocess.TimeoutExpired):
+            print('WARNING temporary session cleanup could not be confirmed; '
+                  'session expiry bounds leftover state.', file=sys.stderr)
 
 
 if __name__ == '__main__':

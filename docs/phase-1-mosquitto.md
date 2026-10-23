@@ -113,8 +113,11 @@ Expected checks:
 5. An authenticated simulator publishes a contract-valid sample and an
    authenticated backend subscriber receives the identical JSON object.
 
-The helper waits for the actual SUBACK before publishing, rather than using a
-fixed sleep. It uses a unique smoke device ID and validates the generated sample
+The helper registers a unique short-lived session using mosquitto_sub -E -c
+-x 60, which exits after subscription acknowledgment. It then publishes QoS 1
+and reconnects the same session to receive the queued sample with -x 0.
+Clean-start cleanup runs in finally. No fixed sleep or live debug-log parsing
+is used. This exercises temporary session queueing, not simultaneous live delivery. It uses a unique smoke device ID and validates the generated sample
 against the existing contract. Subscriber waits are bounded. A failed negative
 test is an investigation trigger, not permission to turn off authentication.
 No credentials are printed by the helper. It does not instantiate a simulator,
@@ -200,3 +203,23 @@ which layer failed. Interview point: distinguish a readiness event from its
 log transport, and add bounded diagnostics before claiming a root cause.
 
 Reference: https://docs.docker.com/reference/cli/docker/compose/exec/
+
+## Follow-up evidence and revised smoke sequence
+
+Owner-supplied broker logs show an authenticated backend connection remaining
+open for approximately 30 seconds, and ps shows Up 45 minutes. Startup or invalid
+backend credentials do not explain this observed run. These information-level
+logs do not prove SUBACK receipt; the earlier TTY change did not resolve timeout.
+The exact original log transport failure is not confirmed.
+
+The smoke helper now uses the documented -E completion event and a unique session
+with 60-second expiry. After registration it publishes, resumes the session,
+compares complete JSON, and clears it with Clean Start and zero expiry. All
+clients use non-TTY execution. This intentionally changes the test to bounded
+session queue delivery; host-native live streaming remains a simulator test.
+It does not verify disk persistence, crash recovery or general offline replay.
+
+Local checks: Python compilation and mocked success, registration failure,
+receive timeout, registration-before-publish and cleanup paths passed. These
+are script-control-flow checks, not actual broker acceptance. Windows rerun pending.
+Reference: https://mosquitto.org/man/mosquitto_sub-1.html (-E, -c, -x).
