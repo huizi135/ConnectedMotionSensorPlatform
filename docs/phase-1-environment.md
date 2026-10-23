@@ -4,7 +4,9 @@ Status: Windows virtual environment and contract regression checks passed on
 2026-10-23 with Python 3.12.3 and jsonschema 4.26.0 (46/46). Docker CLI is
 unresolved and neither default Desktop path was found. WSL 3.0.3 installed and
 VirtualMachinePlatform enabling succeeded, explicitly requiring a reboot.
-Post-reboot WSL and firmware virtualization state are still unverified.
+Post-reboot output now reports WSL 3.0.3.0 and default version 2 without the
+previous WSL2 virtualization-start error. No distributions are installed.
+A running WSL2 VM/Docker engine and firmware state remain unverified.
 No simulator or broker implementation is included in this step.
 
 ## Objective
@@ -202,3 +204,45 @@ References:
 - https://learn.microsoft.com/en-us/windows/wsl/troubleshooting
 - https://docs.docker.com/desktop/features/wsl/
 Consulted 2026-10-23.
+
+## Post-reboot evidence and Docker installation 2026-10-23
+
+Owner output after reboot:
+- wsl --version: WSL 3.0.3.0; kernel 6.18.54.1-1.
+- wsl --status: default version 2; only the WSL1 optional-feature warning remains.
+- wsl --list --verbose: no installed distributions.
+- The earlier WSL2 virtualization-start error is no longer present.
+
+This supports proceeding with Docker Desktop installation. It does not by itself
+prove that a Linux VM or Docker engine can run. No separate Ubuntu installation
+is required for Docker Desktop's Windows WSL2 workflow. Do not enable WSL1 merely
+to suppress its warning.
+
+1. Open https://docs.docker.com/desktop/setup/install/windows-install/ .
+2. Choose the x86_64 Windows installer for this x64 environment, as evidenced by
+   the Windows Python AMD64 wheel in the supplied installation log.
+3. Use the default per-user installation mode where offered and the WSL2 backend.
+   Keep Linux containers for this project. Restart if the installer requires it.
+4. Start Docker Desktop and wait for the engine to finish starting. If settings
+   expose Use WSL 2 based engine, keep it enabled; it may already be the default.
+5. Open a new PowerShell terminal and run:
+
+```powershell
+docker --version
+docker compose version
+docker info --format '{{.OSType}}'
+```
+
+After info reports linux, run:
+
+```powershell
+docker run --rm hello-world
+```
+
+Acceptance requires CLI and Compose version output, a reachable Linux engine,
+and the hello-world success message. The last command may need network access
+to pull its image and removes its test container on exit. Record the exact error
+if startup or pulling fails instead of reinstalling blindly.
+
+The above are instructions, not completed installation or container results.
+No simulator/MQTT implementation has started yet.
