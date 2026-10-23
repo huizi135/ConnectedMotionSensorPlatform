@@ -1,0 +1,8 @@
+# Roles are for trusted local development, not per-device provisioning.
+user simulator
+topic write motion/v1/devices/+/telemetry
+topic write motion/v1/devices/+/status
+
+user backend
+topic read motion/v1/devices/+/telemetry
+topic read motion/v1/devices/+/status

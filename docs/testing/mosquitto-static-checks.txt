@@ -1,0 +1,2 @@
+PASS: YAML parses; loopback binding; version tag; service users; opt-in offline init; all bind sources exist/read-only; declared volumes; read-only broker auth; Python syntax; POSIX shell syntax/LF; explicit authentication and role ACL structure.
+NOT RUN: Docker Compose runtime validation, image execution, password hashing, broker startup, MQTT authorization and routing. No Docker/pwsh/mosquitto executables are available in the assistant environment.

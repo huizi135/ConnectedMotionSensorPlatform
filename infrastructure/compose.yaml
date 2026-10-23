@@ -1,0 +1,58 @@
+name: motion-platform
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2.1.2-alpine
+    user: "1883:1883"
+    command: ["mosquitto", "-c", "/mosquitto/config/mosquitto.conf"]
+    ports:
+      - "127.0.0.1:1883:1883"
+    volumes:
+      - type: bind
+        source: ./mosquitto/config
+        target: /mosquitto/config
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: volume
+        source: mqtt_auth
+        target: /mosquitto/auth
+        read_only: true
+      - type: volume
+        source: mqtt_data
+        target: /mosquitto/data
+    restart: unless-stopped
+    stop_grace_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+  mqtt-init:
+    image: eclipse-mosquitto:2.1.2-alpine
+    user: "0:0"
+    profiles: ["tools"]
+    entrypoint: ["sh"]
+    command: ["/init/initialize.sh", "reuse"]
+    volumes:
+      - type: bind
+        source: ./mosquitto/init-credentials.sh
+        target: /init/initialize.sh
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./mosquitto/acl
+        target: /input/acl
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: volume
+        source: mqtt_auth
+        target: /auth
+    network_mode: none
+
+volumes:
+  mqtt_auth:
+  mqtt_data:

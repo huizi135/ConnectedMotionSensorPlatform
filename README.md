@@ -8,7 +8,7 @@ data processing and operational diagnostics.
 
 ## Project status
 
-Phase 0 design baseline verified; Phase 1 environment preparation is next.
+Phase 1 — local MQTT broker setup.
 
 Verified:
 
@@ -26,10 +26,12 @@ Prepared in this Phase 0 change set:
 Windows execution of the contract runner also passed: Python 3.12.3 with
 jsonschema 4.26.0, 46/46 checks, repository-local .venv and clean Git status.
 MQTT runtime behavior remains unverified. WSL installation requires a reboot;
-Docker Desktop and the broker are not yet ready. The Phase 0 branch has been synchronized on Windows with a clean
+Docker Desktop engine and hello-world have now passed on Windows.
+Mosquitto startup and MQTT role/routing tests are the next unverified step. The Phase 0 branch has been synchronized on Windows with a clean
 working tree. Phase 1 starts with environment inspection.
 
-Application implementation has not started.
+Broker configuration and smoke-test helpers are prepared. Windows broker
+acceptance and virtual sensor implementation are next.
 
 ## Goals
 
@@ -105,6 +107,9 @@ complete offline replay are outside the initial MVP.
 - [Git workflow and Windows synchronization](docs/git-workflow.md)
 - [Phase 0 acceptance](docs/testing/phase-0-acceptance.md)
 - [Phase 1 Windows environment](docs/phase-1-environment.md)
+- [Local Mosquitto setup and verification](docs/phase-1-mosquitto.md)
+- [双语 Broker 操作与验收](docs/Phase1_Mosquitto_Broker_ZH_EN.html)
+- [ADR 0003: local authenticated broker](docs/adr/0003-local-mqtt-broker.md)
 - [Chinese HTML guide](docs/Connected_Motion_Platform_Phase0_ZH.html)
 - [English HTML guide](docs/Connected_Motion_Platform_Phase0_EN.html)
 - [Bilingual phase casebook](docs/Connected_Motion_Platform_Phase_Cases_ZH_EN.html)
@@ -127,8 +132,8 @@ Planned dependencies include Python, .NET, Docker, Mosquitto
 and PostgreSQL. Compatible versions will be selected and recorded
 when the corresponding phase begins.
 
-There is no runnable application yet. Startup instructions will be
-added after the first implementation has been verified.
+No sensor or backend application is running yet. Broker startup instructions
+are available in docs/phase-1-mosquitto.md and await Windows acceptance.
 
 ## Scope and attribution
 
