@@ -8,7 +8,7 @@ data processing and operational diagnostics.
 
 ## Project status
 
-Phase 1 — Windows offline idle accepted; host-native MQTT demo prepared.
+Phase 1 — single-device Windows Python MQTT accepted; two-topic routing next.
 
 Verified:
 
@@ -27,7 +27,9 @@ brief session queue delivery, not host-native streaming or crash durability.
 
 The offline idle generator passed five tests and a three-sample run on Windows.
 A bounded Paho MQTT publisher and independent subscriber are prepared; thirteen
-offline tests pass in the author environment. Windows live MQTT acceptance is next.
+offline tests pass in the author environment. Windows live MQTT acceptance passed
+for one publisher/subscriber pair on 2026-10-23: ten acknowledged IDs match ten
+unique, contiguous, contract-valid received samples. Two-topic routing is next.
 Phase 1 is not complete: multiple devices, status and reconnect remain pending.
 
 ## Goals
@@ -95,6 +97,9 @@ complete offline replay are outside the initial MVP.
 
 ## Documentation
 
+- [两台设备的 Topic 路由隔离：原理、操作和面试问答](docs/Phase1_Topic_Isolation_ZH.html)
+- [Windows Python MQTT acceptance evidence](docs/testing/python-mqtt-windows.txt)
+
 - [Windows Python MQTT：操作、原理与面试提示](docs/Phase1_Python_MQTT_ZH.html)
 - [ADR 0005: bounded host-native MQTT](docs/adr/0005-host-native-mqtt-verification.md)
 
@@ -142,7 +147,8 @@ when the corresponding phase begins.
 The broker smoke test has passed on Windows. The offline signal generator can
 be run with `python -m simulator --samples 3 --seed 42` from the repository root.
 A bounded publisher/subscriber demo is available as `python -m simulator.mqtt_demo`;
-its real Windows MQTT execution is pending. No backend application is implemented.
+its single-device real Windows MQTT execution has passed. No backend application
+is implemented.
 
 ## Scope and attribution
 

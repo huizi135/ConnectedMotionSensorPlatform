@@ -1,0 +1,31 @@
+Windows host-native MQTT acceptance — owner-supplied output, 2026-10-23
+Implementation introduced at d402009; exact local HEAD not included in output.
+Publisher: .\.venv\Scripts\python.exe -m simulator.mqtt_demo publish --samples 10
+Subscriber: .\.venv\Scripts\python.exe -m simulator.mqtt_demo subscribe --samples 10
+Device: sim-live-001
+Stream: 34c9cbc4-beef-436b-9729-0f5d4d02c9a0
+Sample times UTC: 2026-10-23T14:10:50.669281Z through 2026-10-23T14:10:51.569281Z
+Logical timestamp interval: 0.1 s (not a measured network latency/throughput result).
+
+Publisher acknowledged IDs and matching subscriber IDs, sequence 0..9:
+0 ee8b23e0-f312-5f30-b382-0aeb79847529
+1 27782db3-8666-5fc8-b0cd-98eba86dbad4
+2 acb81183-e007-56ed-a3f9-e2c47e7044b9
+3 f187847c-02bb-5240-8b6f-79d09098b425
+4 a795f5c7-6c6d-5b64-80b4-0da2b1a0396c
+5 26499a56-24a8-5ea4-94db-798290511964
+6 d951c5eb-40f2-575f-b82c-4bd1f2dd3772
+7 c3758b17-4535-5cf9-bb93-0055df478628
+8 43c96ca1-f66f-5df0-b57c-6627e702ccde
+9 2a45bf99-94ec-5779-9edb-8a24b20554cc
+
+PASS publisher: 10 successful broker PUBACKs; no database guarantee.
+PASS subscriber: 10 unique contract-valid samples, contiguous sequence; in-memory verification only.
+
+Verified scope: one Windows Python publisher, one independent Windows Python
+subscriber, real local Mosquitto, valid non-retained QoS 1 idle telemetry.
+Both endpoint outputs match by message ID and sequence for this run.
+No proof of zero duplicates on the wire (subscriber deduplicates), crash recovery,
+database durability, measured timing accuracy, multi-device capacity, status or
+automatic reconnect. Windows 13-test output was not supplied in this message.
+Phase 1 remains incomplete.
