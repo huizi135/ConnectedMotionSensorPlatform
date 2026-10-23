@@ -33,9 +33,15 @@ def execute(client, *args, raw=None):
     return result.returncode, result.stdout
 
 
-def expect_denied(label, args, raw=None):
+def expect_denied(label, args, raw=None, *, publish_refusal=False):
     rc, output = execute('mosquitto_pub', *args, raw=raw)
-    if rc == 0 or 'not authori' not in output.lower():
+    # MQTT v5 publish rejection can be reported as a warning with exit 0.
+    # Accept that observed client behavior only for the publish-ACL probe;
+    # connection-authentication probes still require a nonzero exit status.
+    text = output.lower()
+    explicit_refusal = 'not authori' in text
+    rejected_publish = publish_refusal and 'publish 1 failed: not authori' in text
+    if not explicit_refusal or (rc == 0 and not rejected_publish):
         raise RuntimeError(f'{label}: expected explicit authorization refusal; exit={rc}; output={output.strip()}')
     print(f'PASS {label}: explicitly refused')
 
@@ -68,7 +74,8 @@ def main():
     backend = credentials['backend']
     publisher = credentials['simulator']
     expect_denied('backend publish outside its read-only role',
-                  [*common, '-u', backend['username'], '-P', backend['password'], '-s'], raw)
+                  [*common, '-u', backend['username'], '-P', backend['password'], '-s'], raw,
+                  publish_refusal=True)
 
     messages = queue.Queue()
     subscriber = subprocess.Popen(

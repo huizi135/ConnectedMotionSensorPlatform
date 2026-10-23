@@ -1,7 +1,9 @@
 # Phase 1 Mosquitto broker slice
 
-Status: configuration and scripts prepared; actual broker execution pending on
-Windows. Docker hello-world passed in owner-supplied output on 2026-10-23.
+Status: Windows broker initialization/startup passed on 2026-10-23.
+Anonymous and wrong-password connections were refused. The publish ACL probe
+received an explicit Not authorized warning with exit 0; its test classification
+has been corrected. Complete publish/subscribe smoke acceptance is still pending.
 No virtual sensor or backend is implemented in this change.
 
 ## Objective and architecture
@@ -138,7 +140,8 @@ docker image inspect eclipse-mosquitto:2.1.2-alpine --format '{{json .RepoDigest
 The image and scripts have not been executed in the assistant environment because
 it has no Docker engine. Python compile and shell syntax checks plus structural
 Compose checks are recorded separately. Windows startup and smoke output must be
-supplied before marking this slice passed.
+supplied before marking this slice passed. Startup output has now been supplied;
+the corrected smoke test must still be rerun.
 
 ## Stop without deleting state
 
@@ -156,3 +159,21 @@ an unexplained failure; those actions discard state.
 - https://mosquitto.org/documentation/plugins/acl-file/
 - https://mosquitto.org/man/mosquitto_passwd-1.html
 - https://mosquitto.org/man/mosquitto-conf-5.html
+
+## Windows finding: process exit versus publish result
+
+The user's Mosquitto 2.1.2 client reported `Warning: Publish 1 failed: Not authorized.`
+while exiting with code 0. The original helper incorrectly required both explicit
+refusal and a nonzero exit for every negative probe. The publish-ACL probe now
+also accepts this specific warning with exit 0. Connection-authentication probes
+still require nonzero exit plus explicit refusal. Exit 0 without the warning and
+unrelated failures remain test failures. ACL/configuration are unchanged.
+
+Eight local regression cases verify rejection classification, including the
+observed warning, normal authentication failures, unexpected zero exits, empty
+output and network errors. They do not replace a real Windows broker rerun.
+
+Baking analogy: a messenger returning successfully does not mean the kitchen
+accepted the order; the returned receipt explicitly says the order was refused.
+Interview point: process success and protocol/business success are distinct.
+Use evidence from each layer and keep negative tests specific to avoid false passes.
