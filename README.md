@@ -12,26 +12,17 @@ Phase 1 — local MQTT broker setup.
 
 Verified:
 
-- Git is available on the Windows development machine.
-- The repository has been cloned locally.
-- The Windows checkout tracks origin/docs/phase-0-baseline at f8bfed5.
-- Repository-local commit identity is configured.
+- Windows repository clone and repository-local Git identity.
+- Phase 0 architecture, ADRs and versioned MQTT contracts.
+- Windows contract checks: Python 3.12.3, jsonschema 4.26.0, 46/46 passed.
+- Docker Desktop Linux engine and hello-world on Windows.
+- Mosquitto 2.1.2 startup, authentication/ACL plugin loading and loopback port
+  binding, confirmed by the user's Windows output on 2026-10-23.
+- Clean Windows working tree after broker initialization.
 
-Prepared in this Phase 0 change set:
-
-- Architecture documentation, two ADRs and versioned MQTT contracts.
-- Repository configuration, bilingual HTML guides and implementation records.
-- Contract regression checks: 46/46 passed in the author environment.
-
-Windows execution of the contract runner also passed: Python 3.12.3 with
-jsonschema 4.26.0, 46/46 checks, repository-local .venv and clean Git status.
-MQTT runtime behavior remains unverified. WSL installation requires a reboot;
-Docker Desktop engine and hello-world have now passed on Windows.
-Mosquitto startup and MQTT role/routing tests are the next unverified step. The Phase 0 branch has been synchronized on Windows with a clean
-working tree. Phase 1 starts with environment inspection.
-
-Broker configuration and smoke-test helpers are prepared. Windows broker
-acceptance and virtual sensor implementation are next.
+Pending: MQTT authentication/authorization and publish/subscribe smoke tests,
+then virtual sensor implementation. Phase 1 is not complete. Broker startup
+alone does not verify message delivery or end-to-end reliability.
 
 ## Goals
 
@@ -98,6 +89,9 @@ complete offline replay are outside the initial MVP.
 
 ## Documentation
 
+- [Phase 0 中文复盘：烘焙类比、设计取舍与面试问答](docs/Phase0_Explanation_Interview_QA_ZH.html)
+- [阶段讲解与验收文档约定](docs/phase-learning-workflow.md)
+
 - [用烘焙理解技术术语 — 中文学习手册](docs/Technology_Glossary_Baking_ZH.html)
 
 - [Architecture](docs/architecture.md)
@@ -132,8 +126,9 @@ Planned dependencies include Python, .NET, Docker, Mosquitto
 and PostgreSQL. Compatible versions will be selected and recorded
 when the corresponding phase begins.
 
-No sensor or backend application is running yet. Broker startup instructions
-are available in docs/phase-1-mosquitto.md and await Windows acceptance.
+No sensor or backend application is running yet. Broker startup has passed on
+Windows; MQTT behavior tests are the next acceptance step. Instructions are
+available in docs/phase-1-mosquitto.md.
 
 ## Scope and attribution
 
