@@ -8,7 +8,7 @@ data processing and operational diagnostics.
 
 ## Project status
 
-Phase 1 — local MQTT broker setup.
+Phase 1 — broker smoke acceptance passed; offline idle simulator prepared.
 
 Verified:
 
@@ -20,9 +20,14 @@ Verified:
   binding, confirmed by the user's Windows output on 2026-10-23.
 - Clean Windows working tree after broker initialization.
 
-Pending: MQTT authentication/authorization and publish/subscribe smoke tests,
-then virtual sensor implementation. Phase 1 is not complete. Broker startup
-alone does not verify message delivery or end-to-end reliability.
+Windows broker smoke checks passed on 2026-10-23: TCP reachability, anonymous
+and incorrect-password refusal, backend publish denial, temporary-session
+registration and identical JSON receipt. This checks in-container clients and
+brief session queue delivery, not host-native streaming or crash durability.
+
+An offline idle IMU generator and five automated tests are prepared and passed
+in the author environment. Windows signal acceptance is next. Phase 1 is not
+complete; MQTT publishing, multiple devices, status and reconnect remain pending.
 
 ## Goals
 
@@ -89,6 +94,10 @@ complete offline replay are outside the initial MVP.
 
 ## Documentation
 
+- [Phase 1 静止虚拟 IMU：操作、原理和面试提示](docs/Phase1_Idle_Signal_ZH.html)
+- [Windows broker smoke acceptance](docs/testing/phase-1-broker-windows.txt)
+- [ADR 0004: offline signal generation](docs/adr/0004-offline-signal-generation.md)
+
 - [Phase 0 中文复盘：烘焙类比、设计取舍与面试问答](docs/Phase0_Explanation_Interview_QA_ZH.html)
 - [阶段讲解与验收文档约定](docs/phase-learning-workflow.md)
 
@@ -126,9 +135,9 @@ Planned dependencies include Python, .NET, Docker, Mosquitto
 and PostgreSQL. Compatible versions will be selected and recorded
 when the corresponding phase begins.
 
-No sensor or backend application is running yet. Broker startup has passed on
-Windows; MQTT behavior tests are the next acceptance step. Instructions are
-available in docs/phase-1-mosquitto.md.
+The broker smoke test has passed on Windows. The offline signal generator can
+be run with `python -m simulator --samples 3 --seed 42` from the repository root.
+No MQTT sensor publisher or backend application is implemented yet.
 
 ## Scope and attribution
 

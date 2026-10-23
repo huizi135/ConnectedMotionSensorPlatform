@@ -1,0 +1,6 @@
+2026-10-23 — assistant Linux environment
+python -m unittest discover -s tests -p test_idle_signal.py -v
+5/5 tests passed, including existing JSON Schema validation.
+python -m simulator --samples 3 --seed 42: 3 valid JSON observations + PASS.
+python -m simulator --samples 0: argument error, exit 2 (expected).
+Windows offline signal acceptance pending. No MQTT simulator runtime tested.

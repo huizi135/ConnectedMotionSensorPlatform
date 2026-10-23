@@ -1,0 +1,17 @@
+Phase 1 broker slice — Windows owner-supplied acceptance, 2026-10-23
+Test source revision: 4b93fe0
+Command: .\.venv\Scripts\python.exe .\tools\test_mqtt_broker.py
+
+PASS published host TCP port reachable (not an MQTT authentication test)
+PASS anonymous connection: explicitly refused
+PASS incorrect password: explicitly refused
+PASS backend publish outside its read-only role: explicitly refused
+PASS backend subscription acknowledged; temporary session registered
+PASS simulator publish -> backend subscribe: complete JSON payload matches
+Broker smoke checks passed. Temporary session delivery only; no restart, disk durability, retain or simulator claims yet.
+
+Scope: real Windows Docker run; MQTT clients execute inside the broker container.
+This verifies brief registered-session queue delivery, not concurrent live streaming,
+host-native Python MQTT, crash persistence, Last Will, retained status or full Phase 1.
+Earlier live-log readiness timeout root cause remains unconfirmed; changing the
+test sequence removed that dependency, which is not proof of fixing broker behavior.

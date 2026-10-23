@@ -1,10 +1,10 @@
 # Phase 1 Mosquitto broker slice
 
-Status: Windows broker initialization/startup passed on 2026-10-23.
-Anonymous and wrong-password connections were refused. The publish ACL probe
-received an explicit Not authorized warning with exit 0; its test classification
-has been corrected. Complete publish/subscribe smoke acceptance is still pending.
-No virtual sensor or backend is implemented in this change.
+Status: Windows startup and corrected temporary-session smoke checks passed on
+2026-10-23. See testing/phase-1-broker-windows.txt for evidence and limits.
+Offline signal generation is the next slice; Phase 1 remains incomplete.
+
+No MQTT sensor publisher or backend is implemented in this broker slice.
 
 ## Objective and architecture
 
