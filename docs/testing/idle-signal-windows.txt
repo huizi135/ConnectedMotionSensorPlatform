@@ -1,0 +1,10 @@
+2026-10-23 Windows owner-supplied idle acceptance
+Revision: a5c3737 (implementation introduced)
+Command: .\.venv\Scripts\python.exe -m unittest discover -s tests -p "test_idle_signal.py" -v
+Result: Ran 5 tests in 0.013s; OK
+Command: .\.venv\Scripts\python.exe -m simulator --samples 3 --seed 42
+Result: sequence 0,1,2; streamId a992c295-d3f4-4936-add1-71a3bc17ae5f
+sampledAt: 2026-10-23T13:13:46.643290Z, .743290Z, .843290Z
+accelerationMps2.z: 9.796502, 9.805315, 9.818993
+PASS offline idle: 3 contract-valid samples; 10 Hz logical timestamps; no MQTT, no real-time pacing.
+Scope: offline signal generator only. Not a host-native MQTT test.

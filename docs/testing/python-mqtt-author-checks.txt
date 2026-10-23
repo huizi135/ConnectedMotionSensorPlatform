@@ -1,0 +1,7 @@
+2026-10-23 assistant Linux environment
+paho-mqtt 2.1.0; existing contract dependencies.
+python -m unittest discover -s tests -v: 13/13 passed.
+python -m simulator.mqtt_demo --help: passed.
+Tests include Paho refusal reason codes, network failures, deadline checks,
+contract-valid reception, duplicate counting, conflict and midstream rejection.
+No real MQTT connection tested here; Windows two-process acceptance pending.

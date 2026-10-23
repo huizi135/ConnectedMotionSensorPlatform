@@ -8,7 +8,7 @@ data processing and operational diagnostics.
 
 ## Project status
 
-Phase 1 — broker smoke acceptance passed; offline idle simulator prepared.
+Phase 1 — Windows offline idle accepted; host-native MQTT demo prepared.
 
 Verified:
 
@@ -25,9 +25,10 @@ and incorrect-password refusal, backend publish denial, temporary-session
 registration and identical JSON receipt. This checks in-container clients and
 brief session queue delivery, not host-native streaming or crash durability.
 
-An offline idle IMU generator and five automated tests are prepared and passed
-in the author environment. Windows signal acceptance is next. Phase 1 is not
-complete; MQTT publishing, multiple devices, status and reconnect remain pending.
+The offline idle generator passed five tests and a three-sample run on Windows.
+A bounded Paho MQTT publisher and independent subscriber are prepared; thirteen
+offline tests pass in the author environment. Windows live MQTT acceptance is next.
+Phase 1 is not complete: multiple devices, status and reconnect remain pending.
 
 ## Goals
 
@@ -94,6 +95,9 @@ complete offline replay are outside the initial MVP.
 
 ## Documentation
 
+- [Windows Python MQTT：操作、原理与面试提示](docs/Phase1_Python_MQTT_ZH.html)
+- [ADR 0005: bounded host-native MQTT](docs/adr/0005-host-native-mqtt-verification.md)
+
 - [Phase 1 静止虚拟 IMU：操作、原理和面试提示](docs/Phase1_Idle_Signal_ZH.html)
 - [Windows broker smoke acceptance](docs/testing/phase-1-broker-windows.txt)
 - [ADR 0004: offline signal generation](docs/adr/0004-offline-signal-generation.md)
@@ -137,7 +141,8 @@ when the corresponding phase begins.
 
 The broker smoke test has passed on Windows. The offline signal generator can
 be run with `python -m simulator --samples 3 --seed 42` from the repository root.
-No MQTT sensor publisher or backend application is implemented yet.
+A bounded publisher/subscriber demo is available as `python -m simulator.mqtt_demo`;
+its real Windows MQTT execution is pending. No backend application is implemented.
 
 ## Scope and attribution
 

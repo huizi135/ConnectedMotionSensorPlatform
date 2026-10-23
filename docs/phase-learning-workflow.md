@@ -7,3 +7,5 @@
 每条操作指令解释用途、预期结果和失败时停止位置；遇到相关面试要点单独提示。按阶段验收推进，不提前宣称未实现或未验证的能力。
 
 当前：Phase 0 中文复盘已完成。Phase 1 Broker 初始化与启动通过；认证/授权和发布订阅 smoke test 待运行，模拟器待实现。Phase 1 完整复盘在该阶段验收后制作。
+
+2026-10-23 更新：Broker smoke 与 Windows idle（五项测试、三个样本）通过；接下来按 Phase1_Python_MQTT_ZH.html 验证 Windows Python 双进程链路。Phase 1 尚未完成，完整复盘仍待最终验收。
