@@ -8,13 +8,13 @@ data processing and operational diagnostics.
 
 ## Project status
 
-Phase 0 — Architecture and repository setup.
+Phase 0 design baseline verified; Phase 1 environment preparation is next.
 
 Verified:
 
 - Git is available on the Windows development machine.
 - The repository has been cloned locally.
-- The local main branch tracks origin/main.
+- The Windows checkout tracks origin/docs/phase-0-baseline at f8bfed5.
 - Repository-local commit identity is configured.
 
 Prepared in this Phase 0 change set:
@@ -24,7 +24,8 @@ Prepared in this Phase 0 change set:
 - Contract regression checks: 46/46 passed in the author environment.
 
 Windows execution of the contract runner and MQTT runtime behavior remain
-unverified. Phase 0 review and repository synchronization are in progress.
+unverified. The Phase 0 branch has been synchronized on Windows with a clean
+working tree. Phase 1 starts with environment inspection.
 
 Application implementation has not started.
 
@@ -98,6 +99,8 @@ complete offline replay are outside the initial MVP.
 - [ADR 0001: software first](docs/adr/0001-software-first.md)
 - [ADR 0002: versioned JSON contracts](docs/adr/0002-versioned-json-contracts.md)
 - [Git workflow and Windows synchronization](docs/git-workflow.md)
+- [Phase 0 acceptance](docs/testing/phase-0-acceptance.md)
+- [Phase 1 Windows environment](docs/phase-1-environment.md)
 - [Chinese HTML guide](docs/Connected_Motion_Platform_Phase0_ZH.html)
 - [English HTML guide](docs/Connected_Motion_Platform_Phase0_EN.html)
 - [Bilingual phase casebook](docs/Connected_Motion_Platform_Phase_Cases_ZH_EN.html)
@@ -106,7 +109,7 @@ complete offline replay are outside the initial MVP.
 
 GitHub displays HTML source; open the checked-out HTML files in a browser to
 read their formatted local versions. Git is the source of truth for these files.
-Changes are proposed on a work branch and reviewed through a pull request;
+Changes are committed directly to work branches without pull requests;
 ZIP-based file transfer is no longer the development workflow.
 
 Casebook entries for unimplemented phases describe proposed designs

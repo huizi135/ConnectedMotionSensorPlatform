@@ -1,69 +1,58 @@
 # Repository workflow and Windows synchronization
 
-This repository is the source of truth for project files. The assistant can read
-and modify the connected GitHub repository. The assistant cannot directly modify
-the owner's Windows C drive or execute PowerShell there.
+Updated 2026-10-23. Project files are maintained directly through GitHub branches
+and commits, as requested by the owner. Pull requests are not part of this
+workflow. The initial draft PR #1 was closed without merging; its branch and
+commit history are preserved.
 
-## Change workflow
+## Responsibilities
 
-1. Inspect the current remote branch before making changes.
-2. Prepare a focused change on a work branch.
-3. Run appropriate checks and record their actual environment and limits.
-4. Commit the files and open a pull request for review.
-5. Synchronize the Windows checkout using Git.
-6. Merge after review and applicable phase acceptance; do not force-push main.
+The assistant reads the latest branch, prepares focused changes, verifies them
+and commits directly to the work branch. The Windows checkout receives those
+commits using Git. Remote edits do not execute commands on the owner's C drive
+and do not establish Windows runtime results.
 
-Phase 0 work is on `docs/phase-0-baseline`. Phase 1 implementation has not begun.
-Remote source changes do not imply that Windows tests were executed.
+The owner has verified that docs/phase-0-baseline tracks its remote at f8bfed5
+and has a clean working tree. Keep any earlier backup stash until comparison;
+do not automatically pop overlapping old files over the tracked baseline.
 
-## First synchronization with existing local changes
+## Branches
 
-User-provided output shows a modified README and untracked project files. Preserve
-them before switching to a branch that tracks files at the same paths.
+- main: initial commit; no implicit merges.
+- docs/phase-0-baseline: architecture and contract baseline.
+- phase-1/virtual-sensors: Phase 1 preparation and incremental implementation.
 
-Run in Windows PowerShell, from the project repository:
+Create the Phase 1 branch from the updated Phase 0 baseline. New work follows
+the latest phase branch; there is no requirement to merge to main first.
+Integrating completed phases into main is a separate step.
 
-```powershell
-git status --short
-git stash push -u -m "backup local Phase 0 work before remote sync"
-git status --short
-```
+## First checkout of a new remote phase branch
 
-The second status should be empty. `-u` preserves untracked, non-ignored files as
-well as tracked changes. Ignored files and local Git identity are unaffected.
-If the stash command fails or the status is not clean, inspect that result before
-switching branches.
-
-Then fetch and check out the shared work branch:
+With a clean working tree:
 
 ```powershell
 git fetch origin
-git switch --track origin/docs/phase-0-baseline
+git switch --track origin/phase-1/virtual-sensors
 git status
 git log -1 --oneline
-git stash list
 ```
 
-Use this initial switch command only if the local work branch does not yet exist.
-If it exists, switch to it normally and inspect its relationship to origin.
-Keep the backup stash until the checked-out files have been compared. Do not
-immediately apply it over the same files, because it contains overlapping local
-copies of the baseline. There is no need to delete the backup to use the branch.
+If that local branch already exists, switch to it normally and inspect tracking
+rather than creating it again.
 
-## Later synchronization
-
-Once the working tree is clean and the local branch tracks its remote branch:
+## Later updates
 
 ```powershell
+git status --short
 git pull --ff-only
 ```
 
-If there are local edits, inspect and preserve them before updating. A rejected
-fast-forward requires history inspection, not a force reset.
+Proceed only after checking local changes. Preserve intentional edits before
+updating. If fast-forward is rejected, inspect history rather than force-resetting.
 
-## 当前操作说明
+## 中文说明
 
-后续由助手通过 GitHub 工作分支生成和修改文件，通过 PR 展示改动。
-Windows 使用 Git 获取更新，不再反复下载 ZIP。当前本地 README 和未跟踪文档
-先用 stash -u 备份，确认工作区干净后再获取工作分支。stash 保留，不立即 pop，
-避免与远程相同路径文件产生冲突。Git 提交身份保存在本地 .git/config，不受切换影响。
+后续直接创建分支、提交修改，不创建 PR。现有草稿 PR 已关闭，未合并；
+分支和提交历史仍保留。Phase 0 本地同步已通过，开始 Phase 1 环境检查。
+Windows 使用 Git 获取文件；助手不直接操作本机 C 盘。
+已有备份 stash 先保留，不自动 pop。main 暂时维持初始提交，阶段整合另行执行。
