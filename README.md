@@ -96,6 +96,8 @@ complete offline replay are outside the initial MVP.
 
 ## Documentation
 
+- [用烘焙理解技术术语 — 中文学习手册](docs/Technology_Glossary_Baking_ZH.html)
+
 - [Architecture](docs/architecture.md)
 - [MQTT contract v1](docs/mqtt-contract.md)
 - [ADR 0001: software first](docs/adr/0001-software-first.md)
