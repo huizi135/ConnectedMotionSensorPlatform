@@ -290,3 +290,32 @@ test remains pending. Mosquitto and sensor implementation are not yet started.
 References consulted 2026-10-23:
 - https://docs.docker.com/desktop/setup/install/windows-install/
 - https://docs.docker.com/engine/manage-resources/contexts/
+
+## Docker engine connection verified 2026-10-23
+
+Owner output:
+- docker context ls: desktop-linux is active, using
+  npipe:////./pipe/dockerDesktopLinuxEngine.
+- default remains available at npipe:////./pipe/docker_engine.
+- docker info --format '{{.OSType}}' returns linux.
+
+The local Docker Desktop Linux engine is reachable. No manual context change,
+reinstall or data reset is needed based on this result. The earlier missing-pipe
+error is historical; opening Desktop was followed by a successful connection,
+without proving every underlying cause of the earlier failure.
+
+Next smoke test:
+
+```powershell
+docker run --rm hello-world
+```
+
+Expected: the image is fetched if not already present, a container runs, and its
+output includes Hello from Docker! The --rm option removes the exited test
+container, not the downloaded image. It does not start Mosquitto or change
+project files. Image pulling/container execution are still pending until the
+owner supplies output. A later pull may use cache, so cached success alone is
+not proof of current registry connectivity.
+
+After the smoke test passes, prepare only the authenticated local Mosquitto
+Compose slice and verify publish/subscribe before adding simulator features.
