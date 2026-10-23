@@ -177,3 +177,26 @@ Baking analogy: a messenger returning successfully does not mean the kitchen
 accepted the order; the returned receipt explicitly says the order was refused.
 Interview point: process success and protocol/business success are distinct.
 Use evidence from each layer and keep negative tests specific to avoid false passes.
+
+## Windows finding: subscriber readiness timeout
+
+The second Windows run passed TCP reachability and all three refusal probes,
+but no SUBACK line reached the reader before the deadline. Publish/subscribe
+acceptance remains pending. Child stdout buffering is the current hypothesis,
+not a confirmed broker failure. Python Popen bufsize=1 does not flush the C
+client's stdout inside the container.
+
+The subscriber now uses Compose exec's default pseudo-TTY with interactive
+stdin disabled, while publishers retain -T for exact stdin payload transfer.
+The reader strips CR/LF. SUBACK is still required before publishing; there is
+no guessed startup sleep or automatic success on timeout. Bounded, password-
+redacted client output is included on readiness failure. Subscriber lifetime
+is bounded at 30 seconds. Local syntax and command-mode checks passed; actual
+Docker/Windows validation must be rerun.
+
+Baking analogy: the kitchen may have acknowledged an order, but the messenger
+has not yet delivered the receipt. A missing visible receipt does not identify
+which layer failed. Interview point: distinguish a readiness event from its
+log transport, and add bounded diagnostics before claiming a root cause.
+
+Reference: https://docs.docker.com/reference/cli/docker/compose/exec/

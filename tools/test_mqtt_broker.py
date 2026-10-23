@@ -22,8 +22,11 @@ ROOT = Path(__file__).resolve().parents[1]
 COMPOSE = ROOT / 'infrastructure/compose.yaml'
 
 
-def command(client, *args):
-    return ['docker', 'compose', '--file', str(COMPOSE), 'exec', '-T',
+def command(client, *args, tty=False):
+    # A TTY makes the subscriber's C stdout line-buffered. Python bufsize
+    # affects only Python's reader, not the child process inside the container.
+    options = ['--interactive=false'] if tty else ['-T']
+    return ['docker', 'compose', '--file', str(COMPOSE), 'exec', *options,
             'mosquitto', client, *args]
 
 
@@ -80,11 +83,20 @@ def main():
     messages = queue.Queue()
     subscriber = subprocess.Popen(
         command('mosquitto_sub', *common, '-u', backend['username'], '-P', backend['password'],
-                '-v', '-d', '-C', '1', '-W', '20'), cwd=ROOT,
+                '-v', '-d', '-C', '1', '-W', '30', tty=True), cwd=ROOT,
         text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1,
     )
     reader = threading.Thread(target=read_lines, args=(subscriber.stdout, messages), daemon=True)
     reader.start()
+    diagnostics = []
+
+    def readiness_error(reason):
+        # Diagnostics must not disclose local development passwords.
+        detail = ' | '.join(diagnostics[-12:]) or '(no client output received)'
+        for role in (backend, publisher):
+            detail = detail.replace(role['password'], '[REDACTED]')
+        return RuntimeError(reason + ' Client output: ' + detail)
+
     try:
         # Wait for the actual SUBACK, not a guessed sleep before publishing.
         deadline = time.monotonic() + 12
@@ -94,11 +106,14 @@ def main():
             except queue.Empty:
                 continue
             if line is None:
-                raise RuntimeError('Subscriber exited before SUBACK.')
-            if 'received SUBACK' in line:
+                raise readiness_error('Subscriber exited before SUBACK.')
+            diagnostics.append(line)
+            if 'not authori' in line.lower():
+                raise readiness_error('Subscriber authorization refused.')
+            if 'received suback' in line.lower():
                 break
         else:
-            raise RuntimeError('Subscriber readiness timed out before SUBACK.')
+            raise readiness_error('Subscriber readiness timed out before SUBACK.')
         rc, output = execute('mosquitto_pub', *common, '-u', publisher['username'],
                              '-P', publisher['password'], '-s', raw=raw)
         if rc:
@@ -132,7 +147,7 @@ def main():
             except subprocess.TimeoutExpired:
                 subscriber.kill()
                 subscriber.wait(timeout=3)
-        # -W 20 also bounds the in-container subscriber if docker exec is interrupted.
+        # -W 30 also bounds the in-container subscriber if docker exec is interrupted.
 
 
 if __name__ == '__main__':
