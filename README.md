@@ -8,7 +8,7 @@ data processing and operational diagnostics.
 
 ## Project status
 
-Phase 1 — single-device Windows Python MQTT accepted; two-topic routing next.
+Phase 1 — two-device receive success reported; status lifecycle prepared.
 
 Verified:
 
@@ -29,8 +29,11 @@ The offline idle generator passed five tests and a three-sample run on Windows.
 A bounded Paho MQTT publisher and independent subscriber are prepared; thirteen
 offline tests pass in the author environment. Windows live MQTT acceptance passed
 for one publisher/subscriber pair on 2026-10-23: ten acknowledged IDs match ten
-unique, contiguous, contract-valid received samples. Two-topic routing is next.
-Phase 1 is not complete: multiple devices, status and reconnect remain pending.
+unique, contiguous, contract-valid received samples. The owner reports successful subscription and reception for devices 001 and 002
+on 2026-10-24; raw two-device logs were not supplied. Status lifecycle acceptance
+is next.
+Phase 1 is not complete: concurrent multi-device generation, motion scenarios,
+status runtime acceptance and reconnect remain pending.
 
 ## Goals
 
@@ -97,6 +100,10 @@ complete offline replay are outside the initial MVP.
 
 ## Documentation
 
+- [设备状态与分层排障：烘焙类比、操作和面试问答](docs/Phase1_Device_Status_ZH.html)
+- [ADR 0006: status lifecycle experiment](docs/adr/0006-device-status-lifecycle.md)
+- [Two-device owner-reported result](docs/testing/two-device-owner-report.txt)
+
 - [两台设备的 Topic 路由隔离：原理、操作和面试问答](docs/Phase1_Topic_Isolation_ZH.html)
 - [Windows Python MQTT acceptance evidence](docs/testing/python-mqtt-windows.txt)
 
@@ -162,3 +169,7 @@ of real-world sporting accuracy.
 ## License
 
 A license has not yet been selected.
+
+Status demo: `python -m simulator.status_demo watch`, `device` and `snapshot`.
+Twenty offline tests and 46 contract checks pass in the author environment;
+real Windows status/Will acceptance is pending. No new dependencies are required.

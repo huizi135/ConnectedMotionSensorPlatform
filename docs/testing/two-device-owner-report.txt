@@ -1,0 +1,13 @@
+2026-10-24 — owner-reported two-device result
+
+Owner statement: 继续往下，设备1和2 订阅 接收都已成功
+
+Accepted as the owner's confirmation of the preceding two-topic receiving step.
+No raw two-device terminal logs, exact test HEAD, identity sets, timings or explicit
+observation of the idle subscriber during the other device's publication were
+included. Do not invent those details or treat this as a measured isolation,
+security, concurrency/capacity or reliability benchmark.
+
+The preceding procedure used simultaneous exact-topic subscribers and sequential
+publishers for sim-live-001 and sim-live-002. Shared role credentials remain.
+Phase 1 remains incomplete.
