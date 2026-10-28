@@ -1,13 +1,12 @@
 # Phase 1 Windows environment inspection
 
-Status: Windows virtual environment and contract regression checks passed on
-2026-10-23 with Python 3.12.3 and jsonschema 4.26.0 (46/46). Docker CLI is
-unresolved and neither default Desktop path was found. WSL 3.0.3 installed and
-VirtualMachinePlatform enabling succeeded, explicitly requiring a reboot.
-Post-reboot output now reports WSL 3.0.3.0 and default version 2 without the
-previous WSL2 virtualization-start error. No distributions are installed.
-A running WSL2 VM/Docker engine and firmware state remain unverified.
-No simulator or broker implementation is included in this step.
+Current summary (2026-10-28): Windows Python/contract checks, Docker Linux engine,
+hello-world, Mosquitto and host-native MQTT have owner evidence. No separately
+installed Ubuntu/VM/host is evidenced. Status runtime acceptance is pending.
+See engineering-roadmap.md and ADR 0007 for current environment choices.
+
+Earlier pending statements below are historical setup snapshots, superseded by
+later observations and this summary.
 
 ## Objective
 

@@ -1,0 +1,12 @@
+2026-10-28 audit: phase-1/virtual-sensors at 4dfbb0bc6ad491faa510a4b69790926faefcffd9
+36 selected files retrieved at immutable ref, including all existing Python,
+contracts, tests and test evidence. No .NET/DB/monitoring/industrial/ROS code.
+No workflow files; GitHub Actions API reports zero runs. main remains 9c73dfb.
+
+Author Python 3.12.14; paho-mqtt 2.1.0; jsonschema 4.26.0.
+Missing author dependencies installed from repository requirements.
+25 unit tests OK: 20 existing and 5 new acceptance assertion tests.
+46/46 contract checks passed. Status acceptance --help passed.
+Chinese roadmap HTML parsed with two tables and ten sections.
+Docker/dotnet/psql unavailable here: no runtime status, .NET, SQL or CI success claimed.
+Windows real status acceptance pending via tools/test_status_lifecycle.py.

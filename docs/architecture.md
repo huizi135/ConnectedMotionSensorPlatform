@@ -1,6 +1,8 @@
 # System architecture
 
-Status: Phase 0 design baseline. Implementation and runtime guarantees remain unverified.
+Status: Phase 0 design baseline, current implementation reviewed 2026-10-28.
+Broker, idle simulator and Python MQTT are implemented. Backend/database/API/
+monitoring below remain planned; see engineering-roadmap.md.
 
 ## Purpose and constraints
 
@@ -29,9 +31,10 @@ flowchart TD
     O --> G["Grafana"]
 ```
 
-This diagram describes the intended MVP after Phases 1–3. Phase 1 implements
-only the simulator, broker and verification subscriber. None of the services
-in this diagram has been implemented or tested in this project yet.
+This diagram describes the intended MVP after Phases 1–3. Broker, idle
+simulator and verification subscriber have Windows message-flow evidence.
+Status code exists with runtime acceptance pending. Backend, PostgreSQL, API
+and observability remain planned.
 
 ## Responsibilities and boundaries
 
@@ -59,8 +62,8 @@ Planned topics:
 
 Each telemetry message initially contains one JSON sample with `schemaVersion`,
 `messageId`, `deviceId`, `streamId`, `sequence`, `sampledAt`, acceleration and
-angular velocity. Detailed schemas and examples are the next Phase 0 task;
-the contract is not frozen by this document.
+angular velocity. Schemas and examples exist in contracts/mqtt/v1 and are verified by
+tools/validate_contracts.py. Contract evolution remains explicit.
 
 - A sample retains its message identity, sequence and sampling timestamp on retry.
 - A process restart creates a new sampling stream. Reconnection alone need not.

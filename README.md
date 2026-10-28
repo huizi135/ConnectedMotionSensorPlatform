@@ -8,32 +8,24 @@ data processing and operational diagnostics.
 
 ## Project status
 
-Phase 1 — two-device receive success reported; status lifecycle prepared.
+Phase 1 — simulated devices and MQTT; not complete.
 
-Verified:
+Audit: 2026-10-28, source phase-1/virtual-sensors at 4dfbb0b.
+[中文技术审计与路线](docs/Engineering_Roadmap_ZH.html) /
+[engineering roadmap](docs/engineering-roadmap.md).
 
-- Windows repository clone and repository-local Git identity.
-- Phase 0 architecture, ADRs and versioned MQTT contracts.
-- Windows contract checks: Python 3.12.3, jsonschema 4.26.0, 46/46 passed.
-- Docker Desktop Linux engine and hello-world on Windows.
-- Mosquitto 2.1.2 startup, authentication/ACL plugin loading and loopback port
-  binding, confirmed by the user's Windows output on 2026-10-23.
-- Clean Windows working tree after broker initialization.
+Windows evidence: 46 contract checks, five idle tests, real broker authentication/
+ACL checks and ten-message host-native Python MQTT delivery. Two-device receiving
+is owner-confirmed, without raw logs for a scale/security claim.
 
-Windows broker smoke checks passed on 2026-10-23: TCP reachability, anonymous
-and incorrect-password refusal, backend publish denial, temporary-session
-registration and identical JSON receipt. This checks in-container clients and
-brief session queue delivery, not host-native streaming or crash durability.
+Status source exists, but real-broker lifecycle acceptance remains pending.
+A single-command automatic status gate is now provided. Author checks pass:
+25 unit tests (20 existing + 5 new assertions) and 46 contract checks.
+This author environment has no Docker engine; no new runtime success is claimed.
 
-The offline idle generator passed five tests and a three-sample run on Windows.
-A bounded Paho MQTT publisher and independent subscriber are prepared; thirteen
-offline tests pass in the author environment. Windows live MQTT acceptance passed
-for one publisher/subscriber pair on 2026-10-23: ten acknowledged IDs match ten
-unique, contiguous, contract-valid received samples. The owner reports successful subscription and reception for devices 001 and 002
-on 2026-10-24; raw two-device logs were not supplied. Status lifecycle acceptance
-is next.
-Phase 1 is not complete: concurrent multi-device generation, motion scenarios,
-status runtime acceptance and reconnect remain pending.
+Not implemented: PostgreSQL, .NET consumer/API, complete application Compose,
+CI workflows, metrics/health stack, measured capacity, industrial or ROS 2 adapters.
+Phase 1 still needs integrated state, basic reconnect and full teaching scenarios.
 
 ## Goals
 
@@ -70,7 +62,7 @@ The simulator will publish MQTT directly; it will not implement BLE/GATT.
 | 3 | Docker Compose and observability |
 | 4 | Reliability and capacity experiments |
 | 5 | Data quality and motion analytics |
-| 6 | Optional hardware and cloud integration |
+| 6 | Optional hardware/BLE, OPC UA and ROS 2 adapters; later cloud |
 
 Each phase requires verification before the next phase begins.
 
@@ -99,6 +91,11 @@ complete offline replay are outside the initial MVP.
 - Simulator scenario labels must remain separate from detector inputs.
 
 ## Documentation
+
+- [技术审计、职业路线与状态自动验收 — 中文](docs/Engineering_Roadmap_ZH.html)
+- [Extended engineering roadmap](docs/engineering-roadmap.md)
+- [ADR 0007: local Linux environment](docs/adr/0007-local-linux-environment.md)
+- [ADR 0008: status acceptance](docs/adr/0008-status-acceptance-runner.md)
 
 - [设备状态与分层排障：烘焙类比、操作和面试问答](docs/Phase1_Device_Status_ZH.html)
 - [ADR 0006: status lifecycle experiment](docs/adr/0006-device-status-lifecycle.md)
@@ -171,5 +168,10 @@ of real-world sporting accuracy.
 A license has not yet been selected.
 
 Status demo: `python -m simulator.status_demo watch`, `device` and `snapshot`.
-Twenty offline tests and 46 contract checks pass in the author environment;
+Twenty-five offline tests and 46 contract checks pass in the author environment;
 real Windows status/Will acceptance is pending. No new dependencies are required.
+
+After broker startup: `python tools/test_status_lifecycle.py` runs graceful,
+process-crash Will and retained snapshot acceptance with unique temporary topics.
+Linux plan: Windows dev + Docker Desktop WSL2 Linux containers; Ubuntu WSL2 is
+optional, not required. See ADR 0007. Existing direct-branch workflow is retained.
