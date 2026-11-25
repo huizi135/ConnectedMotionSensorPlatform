@@ -1,0 +1,14 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+ARG PROJECT
+WORKDIR /src
+COPY src/${PROJECT}/${PROJECT}.csproj ./
+RUN dotnet restore "${PROJECT}.csproj"
+COPY src/${PROJECT}/ ./
+RUN dotnet publish "${PROJECT}.csproj" -c Release --no-restore -o /out
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+ARG PROJECT
+ENV MOTION_ASSEMBLY=${PROJECT}.dll
+WORKDIR /app
+COPY --from=build /out ./
+ENTRYPOINT ["/bin/sh", "-c", "exec dotnet \"$MOTION_ASSEMBLY\""]

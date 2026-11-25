@@ -1,0 +1,7 @@
+**
+!src/
+!src/**
+**/bin/
+**/obj/
+!infrastructure/
+!infrastructure/Dockerfile.dotnet

@@ -4,15 +4,18 @@ using Npgsql;
 using NpgsqlTypes;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseUrls("http://127.0.0.1:5086");
-var password = Environment.GetEnvironmentVariable("MOTION_DB_PASSWORD");
+builder.WebHost.UseUrls(Environment.GetEnvironmentVariable("MOTION_API_URL") ?? "http://127.0.0.1:5086");
+var password = Environment.GetEnvironmentVariable("MOTION_DB_PASSWORD")
+        ?? Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
 if (string.IsNullOrEmpty(password))
     throw new InvalidOperationException("Set MOTION_DB_PASSWORD for this terminal.");
 
 builder.Services.AddSingleton<NpgsqlDataSource>(_ => NpgsqlDataSource.Create(
     new NpgsqlConnectionStringBuilder
     {
-        Host = "127.0.0.1", Port = 5433, Database = "motion", Username = "motion",
+        Host = Environment.GetEnvironmentVariable("MOTION_DB_HOST") ?? "127.0.0.1",
+        Port = int.Parse(Environment.GetEnvironmentVariable("MOTION_DB_PORT") ?? "5433"),
+        Database = "motion", Username = "motion",
         Password = password, Timeout = 5, CommandTimeout = 10
     }.ConnectionString));
 

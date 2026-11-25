@@ -11,14 +11,17 @@ Console.CancelKeyPress += (_, e) => { e.Cancel = true; stop.Cancel(); };
 var failure = new TaskCompletionSource<Exception>(TaskCreationOptions.RunContinuationsAsynchronously);
 try
 {
-    var password = Environment.GetEnvironmentVariable("MOTION_DB_PASSWORD");
+    var password = Environment.GetEnvironmentVariable("MOTION_DB_PASSWORD")
+        ?? Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
     if (string.IsNullOrEmpty(password))
         throw new InvalidOperationException("Set MOTION_DB_PASSWORD for this terminal.");
     using var credentials = JsonDocument.Parse(await File.ReadAllTextAsync("secrets/mqtt/clients.json", stop.Token));
     var backend = credentials.RootElement.GetProperty("backend");
     var connection = new NpgsqlConnectionStringBuilder
     {
-        Host = "127.0.0.1", Port = 5433, Database = "motion", Username = "motion",
+        Host = Environment.GetEnvironmentVariable("MOTION_DB_HOST") ?? "127.0.0.1",
+        Port = int.Parse(Environment.GetEnvironmentVariable("MOTION_DB_PORT") ?? "5433"),
+        Database = "motion", Username = "motion",
         Password = password, Timeout = 5, CommandTimeout = 10
     };
     await using var db = NpgsqlDataSource.Create(connection.ConnectionString);
@@ -62,7 +65,7 @@ try
     using var startup = CancellationTokenSource.CreateLinkedTokenSource(stop.Token);
     startup.CancelAfter(TimeSpan.FromSeconds(15));
     var result = await mqtt.ConnectAsync(new MqttClientOptionsBuilder()
-        .WithTcpServer("127.0.0.1", 1883)
+        .WithTcpServer(Environment.GetEnvironmentVariable("MOTION_MQTT_HOST") ?? "127.0.0.1", 1883)
         .WithProtocolVersion(MqttProtocolVersion.V500)
         .WithClientId("motion-ingest-" + Guid.NewGuid().ToString("N"))
         .WithCredentials(backend.GetProperty("username").GetString()!, backend.GetProperty("password").GetString()!)

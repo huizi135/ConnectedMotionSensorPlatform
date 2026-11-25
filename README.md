@@ -349,7 +349,7 @@ There is currently **no graphical dashboard, hosted demo, or screenshot set** in
 | 0 — Design foundation | Baseline established | Architecture, contracts, repository conventions, ADRs, and bilingual documentation. |
 | 1 — Virtual devices and MQTT | In progress | Idle signals and basic MQTT path verified; finish integrated lifecycle, scenarios and concurrent devices; basic reconnect verified on Windows. |
 | 2 — Backend and persistence | In progress; PostgreSQL foundation verified on Windows | PostgreSQL schema/migrations/SQL, .NET MQTT consumer, constraints/deduplication, and REST history queries. |
-| 3 — Deployment and observability | Planned | Backend containers, complete Compose, health checks, structured logs, CI/build verification, then metrics and dashboards. |
+| 3 — Deployment and observability | Compose slice implemented; runtime acceptance pending | Backend containers, complete Compose, health checks, structured logs, CI/build verification, then metrics and dashboards. |
 | Monitoring workspace extension | Planned after backend/API foundation | Device state, live curves, diagnostics, latency interpretation, and historical inspection. |
 | 4 — Reliability and capacity | Planned | Bounded buffering/backpressure, outages/crashes, duplicates/order/gaps, and measured multi-device load. |
 | 5 — Data and analytics | Planned | Quality checks, features, independently evaluated rule-based events, and analysis-ready datasets. |
@@ -372,6 +372,8 @@ CI will be added alongside the relevant implementation slices rather than postpo
 | [`docs`](docs) | Architecture, roadmap, English/Chinese phase guides, and interview-oriented explanations. |
 
 ## Documentation
+
+- [Phase 3A: full local Compose deployment](docs/phase-3a-compose.md)
 
 - [Phase 2B: .NET MQTT-to-PostgreSQL ingestion](docs/phase-2b-ingestion.md) — [Windows acceptance](docs/testing/ingestion-windows.txt).
 - [Phase 2C: read-only telemetry history API](docs/phase-2c-history-api.md) — [Windows acceptance](docs/testing/history-api-windows.txt).
