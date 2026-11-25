@@ -348,7 +348,7 @@ There is currently **no graphical dashboard, hosted demo, or screenshot set** in
 | --- | --- | --- |
 | 0 — Design foundation | Baseline established | Architecture, contracts, repository conventions, ADRs, and bilingual documentation. |
 | 1 — Virtual devices and MQTT | In progress | Idle signals and basic MQTT path verified; finish integrated lifecycle, scenarios and concurrent devices; basic reconnect verified on Windows. |
-| 2 — Backend and persistence | In progress; PostgreSQL acceptance pending | PostgreSQL schema/migrations/SQL, .NET MQTT consumer, constraints/deduplication, and REST history queries. |
+| 2 — Backend and persistence | In progress; PostgreSQL foundation verified on Windows | PostgreSQL schema/migrations/SQL, .NET MQTT consumer, constraints/deduplication, and REST history queries. |
 | 3 — Deployment and observability | Planned | Backend containers, complete Compose, health checks, structured logs, CI/build verification, then metrics and dashboards. |
 | Monitoring workspace extension | Planned after backend/API foundation | Device state, live curves, diagnostics, latency interpretation, and historical inspection. |
 | 4 — Reliability and capacity | Planned | Bounded buffering/backpressure, outages/crashes, duplicates/order/gaps, and measured multi-device load. |
@@ -374,6 +374,7 @@ CI will be added alongside the relevant implementation slices rather than postpo
 ## Documentation
 
 - [Phase 2A: PostgreSQL setup and acceptance](docs/phase-2a-postgresql.md)
+- [Windows PostgreSQL acceptance evidence](docs/testing/postgresql-windows.txt)
 
 Start with [Architecture](docs/architecture.md), [MQTT Contract](docs/mqtt-contract.md), [Broker Setup](docs/phase-1-mosquitto.md), or the [Engineering Roadmap](docs/engineering-roadmap.md).
 

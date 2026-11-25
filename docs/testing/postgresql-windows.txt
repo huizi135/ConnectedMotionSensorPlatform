@@ -1,0 +1,9 @@
+Owner-supplied Windows results for Phase 2A (implementation introduced in 6c0a16a).
+
+PASS PostgreSQL: wrote sample; duplicate message, stream sequence and foreign key checks passed.
+PASS PostgreSQL: persisted sample found.
+
+The documented procedure runs a read-only check after PostgreSQL container
+restart. The supplied excerpt includes the two final PASS lines, not the restart
+log or local commit SHA. This is standalone PostgreSQL acceptance, not evidence
+of MQTT ingestion, .NET host authentication, or API behavior.
