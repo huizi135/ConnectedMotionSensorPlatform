@@ -209,6 +209,22 @@ After the standalone status checks, verify a single process that also sends five
 
 Expected: five unique contract-valid telemetry samples in one stream, matching online/offline connection IDs, and an identical retained offline snapshot. This checks both topics for the same test device; it does not assert a general delivery order across topics. Expect `PASS integrated lifecycle`. See the [Windows acceptance record](docs/testing/integrated-lifecycle-windows.txt).
 
+### Verify two concurrent simulated devices
+
+With the broker running, execute from the repository root:
+
+```powershell
+.\.venv\Scripts\python.exe tools/test_status_lifecycle.py --concurrent
+```
+
+Two independent subscribers register before a shared start gate releases the
+two simulator processes. Each validates its own device's five unique telemetry
+samples (sequences 0–4 in one stream), graceful lifecycle and retained offline
+snapshot. The runner checks that the device-reported online intervals overlap
+on the same host. Expect `PASS concurrent lifecycle`. This does not measure
+the timing of individual publishes or establish throughput, production capacity,
+or per-device authorization. Windows runtime acceptance is pending.
+
 ### Try bounded device reconnect
 
 In terminal A:

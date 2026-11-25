@@ -3,6 +3,9 @@
 Run after initialize_mqtt.py and Compose broker startup. This test launches only
 its own bounded device processes. It never restarts Docker or deletes volumes.
 """
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
+from threading import Barrier
 import argparse
 import json
 from pathlib import Path
@@ -81,7 +84,7 @@ def clear_test_status(credentials, topic):
         connection.close()
 
 
-def run_case(credentials, checks, abrupt, samples=0):
+def run_case(credentials, checks, abrupt, samples=0, start_gate=None):
     device_id = 'status-check-' + uuid4().hex
     topic = f'motion/v1/devices/{device_id}/status'
     observer = Connection(credentials, 'backend')
@@ -112,9 +115,12 @@ def run_case(credentials, checks, abrupt, samples=0):
     try:
         filters = [(topic, 1), (telemetry_topic, 1)] if samples else topic
         subscribe(observer, filters)
+        if start_gate is not None:
+            start_gate.wait(timeout=15)
+        hold_seconds = '5' if start_gate is not None else '1'
         child = subprocess.Popen(
             [sys.executable, '-m', 'simulator.status_demo', 'device',
-             '--device-id', device_id, '--seconds', '1', '--exit-mode', mode,
+             '--device-id', device_id, '--seconds', hold_seconds, '--exit-mode', mode,
              '--samples', str(samples)],
             cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
         )
@@ -139,9 +145,10 @@ def run_case(credentials, checks, abrupt, samples=0):
             if (sorted(r['sequence'] for r in readings) != list(range(samples))
                     or len({r['streamId'] for r in readings}) != 1):
                 raise RuntimeError('Expected one complete telemetry stream')
-            print(f'PASS integrated: {samples} unique IMU samples from the same device run', flush=True)
+            print(f'PASS integrated: {samples} unique IMU samples from the device {device_id}', flush=True)
         snapshot(credentials, topic, checks, unique[-1])
         print(f'PASS {mode}: new subscriber received identical retained offline', flush=True)
+        return unique
     finally:
         if child is not None and child.poll() is None:
             child.terminate()
@@ -157,14 +164,39 @@ def run_case(credentials, checks, abrupt, samples=0):
             print('WARNING cleanup not confirmed for unique test topic: ' + topic, file=sys.stderr)
 
 
+def check_overlap(first, second):
+    latest_online = max(datetime.fromisoformat(events[0]['reportedAt'])
+                        for events in (first, second))
+    earliest_offline = min(datetime.fromisoformat(events[1]['reportedAt'])
+                           for events in (first, second))
+    if latest_online >= earliest_offline:
+        raise RuntimeError('Device online intervals did not overlap')
+
+
+def run_concurrent(credentials, checks):
+    gate = Barrier(2)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        futures = [pool.submit(run_case, credentials, checks, abrupt=False,
+                               samples=5, start_gate=gate) for _ in range(2)]
+        first, second = [future.result() for future in futures]
+    check_overlap(first, second)
+    print('PASS concurrent lifecycle: two overlapping devices, five unique samples each.',
+          flush=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--integrated', action='store_true', help='Check one graceful device run with five IMU samples')
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument('--concurrent', action='store_true', help='Check two overlapping device runs')
+    modes.add_argument('--integrated', action='store_true', help='Check one graceful device run with five IMU samples')
     args = parser.parse_args()
     with socket.create_connection(('127.0.0.1', 1883), timeout=5):
         pass
     credentials = json.loads((ROOT / 'secrets/mqtt/clients.json').read_text(encoding='utf-8'))
     checks = validators()
+    if args.concurrent:
+        run_concurrent(credentials, checks)
+        return
     if args.integrated:
         run_case(credentials, checks, abrupt=False, samples=5)
         print('PASS integrated lifecycle: status, telemetry and retained offline.', flush=True)
