@@ -1,0 +1,7 @@
+Phase 2B Windows acceptance (implementation introduced in eb8ccec).
+Owner supplied READY, five STORED entries (sequence 0–4), and one DUPLICATE
+matching sequence zero for device phase2b-6480516f36b042018842ef908969cea5.
+Publisher confirmed five messages plus one exact retry. Owner subsequently
+confirmed completing the SQL acceptance step; raw SQL output not supplied.
+No conflicting replay, database outage, durable MQTT replay, or REST behavior
+was exercised in this run.
