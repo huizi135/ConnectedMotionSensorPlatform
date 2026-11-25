@@ -6,7 +6,7 @@ Connected Motion Sensor Platform is a personal software engineering project expl
 
 It starts with software-only IMU sensors and a local MQTT pipeline, with a planned C#/.NET backend, PostgreSQL persistence, REST API, and real-time monitoring workspace.
 
-**Work in progress:** the current implementation generates stationary IMU data, validates versioned messages, and publishes/subscribes through an authenticated Mosquitto broker. Device-status and Last Will demonstrations and an automated acceptance runner are implemented, with real-broker status acceptance still pending. The .NET backend, database, and graphical monitoring interface are planned features.
+**Work in progress:** the current implementation generates stationary IMU data, validates versioned messages, and publishes/subscribes through an authenticated Mosquitto broker. Device-status and Last Will demonstrations and an automated acceptance runner are implemented, with real-broker status acceptance passed on Windows. The .NET backend, database, and graphical monitoring interface are planned features.
 
 [Getting Started](#getting-started) · [System Architecture](#system-architecture) · [Verification](#verification) · [Real-Time Monitoring Interface](#real-time-monitoring-interface-planned) · [Roadmap](#roadmap) · [Documentation](#documentation)
 
@@ -54,8 +54,8 @@ The project remains a simulated-device engineering exercise. Industrial protocol
 | Python MQTT path | Separate publisher and subscriber, MQTT v5 reason-code handling, QoS 1 non-retained telemetry, and bounded waits. | A ten-message Windows run has matching sent/received identities and contiguous sequence. |
 | Device channels | Explicit device topics and independently selected device IDs. | Two-device reception is owner-confirmed; it is not a concurrency benchmark or device-identity security test. |
 | Subscriber validation | Schema validation, identical-duplicate suppression, conflicting-duplicate rejection, and single-stream sequence checks. | In-memory demo checks; durable deduplication is not implemented. |
-| Device status | Retained online/offline announcements, connection IDs, a graceful exit, and a pre-registered Last Will. | Unit checks exist; recorded real-broker status acceptance is pending. |
-| Status acceptance tool | Observe graceful and intentional process-exit transitions, then verify retained offline with a new subscriber. | Implemented and covered by offline assertions; its real-broker run remains to be accepted. |
+| Device status | Retained online/offline announcements, connection IDs, a graceful exit, and a pre-registered Last Will. | Windows real-broker checks passed for graceful exit, process-exit Will and retained offline. |
+| Status acceptance tool | Observe graceful and intentional process-exit transitions, then verify retained offline with a new subscriber. | Implemented and verified against the local broker on Windows. |
 | Engineering documentation | Eight ADRs, architecture, phase records, evidence files, and Chinese/English learning material. | Plans and recorded execution results are distinguished. |
 
 Current simulation implements **idle only**. Motion, jump, landing, integrated multi-device generation, and automatic reconnection remain future work. The JSON contract's scenario vocabulary does not imply that those generators or a motion detector already exist.
@@ -199,7 +199,7 @@ For the automated real-broker acceptance run:
 
 The runner subscribes first, launches unique one-second demo devices, checks graceful offline and an intentional process crash, and verifies the resulting retained snapshots with new subscribers. Exit `17` is expected for the child simulating a crash; the parent should finish with `PASS status lifecycle`. Cleanup targets only the runner's own retained topics.
 
-**This runner is provided for local verification; a successful real-broker status run has not yet been recorded in the repository.** Offline tests do not establish that result.
+See the [Windows status lifecycle evidence](docs/testing/status-lifecycle-windows.txt) for the successful real-broker run.
 
 ### Stop the local broker
 
@@ -246,7 +246,7 @@ The README review on **2026-11-12** uses implementation commit [`e347969`](https
 | Broker checks | Windows initialization, startup, role refusal checks, and smoke delivery recorded. |
 | Native Python MQTT | Ten matching published/received message IDs and sequences recorded on Windows. |
 | Two-device exercise | Owner-reported subscription/reception success; no measured scale claim. |
-| Device-status integration | Source and automated runner exist; real-broker acceptance pending. |
+| Standalone device-status demo | Windows broker run passed: graceful exit, simulated process crash (Will), and retained snapshots. |
 | CI / backend / database / UI | No workflow run or implementation is present for these areas. |
 
 See the [test records](docs/testing) for commands, dates, environments, and limits. There is no GitHub Actions workflow or passing CI badge. Broker and Windows evidence comes from earlier local runs; the documentation review does not rerun Docker or establish new network/persistence guarantees.
@@ -284,7 +284,7 @@ There is currently **no graphical dashboard, hosted demo, or screenshot set** in
 | Phase | Status | Scope |
 | --- | --- | --- |
 | 0 — Design foundation | Baseline established | Architecture, contracts, repository conventions, ADRs, and bilingual documentation. |
-| 1 — Virtual devices and MQTT | In progress | Idle signals and basic MQTT path verified; finish status acceptance, integrated lifecycle, scenarios, concurrent devices, and basic reconnect. |
+| 1 — Virtual devices and MQTT | In progress | Idle signals and basic MQTT path verified; finish integrated lifecycle, scenarios, concurrent devices, and basic reconnect. |
 | 2 — Backend and persistence | Planned; next major priority | PostgreSQL schema/migrations/SQL, .NET MQTT consumer, constraints/deduplication, and REST history queries. |
 | 3 — Deployment and observability | Planned | Backend containers, complete Compose, health checks, structured logs, CI/build verification, then metrics and dashboards. |
 | Monitoring workspace extension | Planned after backend/API foundation | Device state, live curves, diagnostics, latency interpretation, and historical inspection. |
@@ -322,7 +322,7 @@ GitHub shows HTML source; open checked-out HTML files in a browser for their for
 
 This is an independent engineering project inspired by sports motion-tracking problems, including the product domain of Aiving's Jump Tracker. It does not reproduce proprietary algorithms or internal architecture. The project complements my professional experience; it is not presented as production industrial, robotics, or medical-system deployment.
 
-The next work is to accept the existing device-status slice, complete the minimal simulator lifecycle, and build the backend/database path that will support a meaningful monitoring interface.
+The next work is to integrate device status with telemetry, complete the minimal simulator lifecycle, and build the backend/database path that will support a meaningful monitoring interface.
 
 ## License
 

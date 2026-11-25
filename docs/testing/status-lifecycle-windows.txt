@@ -1,0 +1,12 @@
+Windows owner-supplied result, 2026-11-25
+Exact local commit not printed in the supplied output.
+
+46/46 checks passed
+Command: .\.venv\Scripts\python.exe tools/test_status_lifecycle.py
+PASS graceful: live online -> offline, matching connectionId and time semantics
+PASS graceful: new subscriber received identical retained offline
+PASS abrupt: live online -> offline, matching connectionId and time semantics
+PASS abrupt: new subscriber received identical retained offline
+PASS status lifecycle: graceful, simulated process crash and retained snapshots. No network-blackhole, broker-restart or database guarantee.
+
+Scope: standalone status demo. No evidence of integrated telemetry lifecycle or automatic reconnect. The current excerpt does not include a fresh unit-test summary.
