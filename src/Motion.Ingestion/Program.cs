@@ -59,7 +59,7 @@ try
         }
         catch (Exception ex)
         {
-            Log("ERROR", "delivery_failed", sample, ex.GetType().Name);
+            Log("ERROR", "delivery_failed", sample, ex);
             failure.TrySetResult(ex);
         }
     };
@@ -87,18 +87,20 @@ catch (OperationCanceledException) when (stop.IsCancellationRequested) { }
 catch (Exception ex)
 {
     // Do not print connection strings, credentials, or payloads.
-    Log("ERROR", "ingestion_stopped", errorType: ex.GetType().Name);
+    Log("ERROR", "ingestion_stopped", error: ex);
     return 1;
 }
 return 0;
 
-static void Log(string outcome, string message, Reading? sample = null, string? errorType = null)
+static void Log(string outcome, string message, Reading? sample = null, Exception? error = null)
 {
     Console.WriteLine(JsonSerializer.Serialize(new
     {
         timestamp = DateTimeOffset.UtcNow, outcome, message,
         deviceId = sample?.Device, streamId = sample?.Stream,
-        messageId = sample?.Id, sequence = sample?.Sequence, errorType
+        messageId = sample?.Id, sequence = sample?.Sequence,
+        errorType = error?.GetType().Name,
+        sqlState = (error as PostgresException)?.SqlState
     }));
 }
 
