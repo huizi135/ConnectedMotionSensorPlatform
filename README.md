@@ -223,7 +223,7 @@ segment; landing starts with an illustrative Z impulse that decays toward the
 stationary baseline. These profiles are not physically calibrated. The same
 `--scenario` option is available on `simulator.mqtt_demo publish` and
 `simulator.status_demo device`. No scenario label is added to telemetry.
-Generator checks passed locally; Windows MQTT acceptance for non-idle is pending.
+Generator checks passed locally; the [Windows non-idle MQTT run](docs/testing/non-idle-mqtt-windows.txt) passed publisher and subscriber checks.
 
 ### Verify concurrent simulated devices
 

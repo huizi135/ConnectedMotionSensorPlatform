@@ -1,0 +1,10 @@
+Windows owner-supplied non-idle MQTT acceptance
+Scenario under test: landing, per the preceding run instructions.
+Exact local HEAD and raw sample payloads were not supplied.
+
+PASS publisher: 10 successful broker PUBACKs; no database guarantee.
+PASS subscriber: 10 unique contract-valid samples, contiguous sequence; in-memory verification only.
+
+Scope: broker acknowledgement and independent subscriber receipt/validation.
+Raw signal shape on Windows was not independently inspected in this run.
+No database persistence, hardware fidelity, or motion recognition is claimed.
