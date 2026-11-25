@@ -7,7 +7,7 @@ from simulator.mqtt_demo import Connection, ROOT, mqtt
 from simulator.signals import idle_samples
 
 
-def main():
+def publish_fixture():
     device = 'phase2b-' + uuid4().hex
     topic = f'motion/v1/devices/{device}/telemetry'
     samples = list(idle_samples(device, uuid4(), datetime.now(timezone.utc), count=5))
@@ -24,7 +24,8 @@ def main():
         print(f'Broker acknowledged 5 samples + 1 retry. deviceId={device}')
     finally:
         conn.close()
+    return device
 
 
 if __name__ == '__main__':
-    main()
+    publish_fixture()

@@ -18,6 +18,10 @@ def main():
     device = parser.parse_args().device_id
     if not re.fullmatch(r"[a-z0-9][a-z0-9_-]{0,63}", device):
         parser.error("Invalid device ID")
+    verify_history(device)
+
+
+def verify_history(device):
     url = f"http://127.0.0.1:5086/api/v1/devices/{device}/readings"
     params = {"from": "2000-01-01T00:00:00Z", "to": "2100-01-01T00:00:00Z", "limit": 2}
     readings = []
