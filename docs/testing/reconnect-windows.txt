@@ -1,0 +1,13 @@
+Owner-supplied Windows broker stop/start acceptance
+Feature introduced in 4cdd346; exact local HEAD not supplied.
+
+Initial online connectionId: a166e975-3573-49f2-a14a-69ac36ccf187
+Initial sequence 0–4: five successful publisher PUBACKs.
+RECONNECT 1/30: MQTT connection closed; retries 2–4: TCP refused (WinError 10061).
+Recovered online connectionId: 2d1b079d-f4fc-4441-bef7-fb878dff8fbb
+Recovered sequence 0–4: five successful publisher PUBACKs, all with new message IDs.
+Ctrl+C: graceful offline PUBACK on the recovered connectionId.
+
+Scope: publisher-side evidence for bounded retry, renewed online, fresh telemetry,
+and graceful offline. No independent subscriber trace in this run, no measured
+recovery time, offline replay, network-blackhole test, or database guarantee.

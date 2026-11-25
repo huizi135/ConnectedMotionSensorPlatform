@@ -229,8 +229,7 @@ connection ID and five new sample ACKs. Press Ctrl+C during the second hold for
 graceful offline. The retry budget is 30 attempts with one second between
 attempts (connection processing also takes time). Authentication and publish
 refusals fail directly. Recovery starts a fresh stream; it does not replay old
-samples. This procedure interrupts other local broker clients and has not yet
-been accepted on Windows.
+samples. This procedure interrupts other local broker clients. See the [Windows reconnect acceptance record](docs/testing/reconnect-windows.txt) for the successful broker stop/start run.
 
 ### Stop the local broker
 
@@ -315,7 +314,7 @@ There is currently **no graphical dashboard, hosted demo, or screenshot set** in
 | Phase | Status | Scope |
 | --- | --- | --- |
 | 0 — Design foundation | Baseline established | Architecture, contracts, repository conventions, ADRs, and bilingual documentation. |
-| 1 — Virtual devices and MQTT | In progress | Idle signals and basic MQTT path verified; finish integrated lifecycle, scenarios, concurrent devices, and basic reconnect. |
+| 1 — Virtual devices and MQTT | In progress | Idle signals and basic MQTT path verified; finish integrated lifecycle, scenarios and concurrent devices; basic reconnect verified on Windows. |
 | 2 — Backend and persistence | Planned; next major priority | PostgreSQL schema/migrations/SQL, .NET MQTT consumer, constraints/deduplication, and REST history queries. |
 | 3 — Deployment and observability | Planned | Backend containers, complete Compose, health checks, structured logs, CI/build verification, then metrics and dashboards. |
 | Monitoring workspace extension | Planned after backend/API foundation | Device state, live curves, diagnostics, latency interpretation, and historical inspection. |
