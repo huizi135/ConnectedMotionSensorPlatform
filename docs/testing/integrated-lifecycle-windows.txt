@@ -1,0 +1,10 @@
+Windows owner-supplied acceptance result
+Implementation introduced in 0c9655e; exact local HEAD not supplied.
+
+Expected command: python tools/test_status_lifecycle.py --integrated
+Reported output:
+PASS integrated lifecycle: status, telemetry and retained offline.
+
+Scope: one graceful simulated device run, five unique contract-valid IMU
+samples in one stream, matching status connection IDs, and retained offline.
+No general cross-topic order, reconnect, or persistence guarantee.
