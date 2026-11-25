@@ -9,7 +9,7 @@ import time
 from uuid import uuid4
 
 import paho.mqtt.client as mqtt
-from .signals import idle_samples
+from .signals import SCENARIOS, imu_samples
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
@@ -97,7 +97,7 @@ def publish(connection, args, checks, topic):
     stream = uuid4()
     start = datetime.now(timezone.utc)
     clock_start = time.monotonic()
-    for sample in idle_samples(args.device_id, stream, start, args.samples, 10, args.seed):
+    for sample in imu_samples(args.device_id, stream, start, args.samples, 10, args.seed, scenario=args.scenario):
         # Ideal sample time is explicit; desktop scheduling is not hard real time.
         target = clock_start + sample['sequence'] / 10
         connection.wait(lambda: time.monotonic() >= target, 10, 'Pacing')
@@ -159,6 +159,7 @@ def main():
     parser.add_argument('mode', choices=['subscribe', 'publish'])
     parser.add_argument('--device-id', default='sim-live-001')
     parser.add_argument('--samples', type=int, default=10)
+    parser.add_argument('--scenario', choices=SCENARIOS, default='idle')
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--timeout', type=int, default=120)
     args = parser.parse_args()

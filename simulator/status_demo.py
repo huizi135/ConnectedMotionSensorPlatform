@@ -9,6 +9,7 @@ import time
 from uuid import uuid4
 
 import paho.mqtt.client as mqtt
+from .signals import SCENARIOS
 from .mqtt_demo import Connection, ConnectionLost, ROOT, publish, validate_message, validators
 
 
@@ -144,6 +145,7 @@ def main():
     parser.add_argument('--device-id', default='sim-status-001')
     parser.add_argument('--samples', type=int, default=0, help='Idle telemetry samples before the status-only hold (device mode)')
     parser.add_argument('--reconnect-attempts', type=int, default=0)
+    parser.add_argument('--scenario', choices=SCENARIOS, default='idle')
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--seconds', type=int, default=8)
     parser.add_argument('--timeout', type=int, default=180)

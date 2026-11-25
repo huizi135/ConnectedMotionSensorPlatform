@@ -58,7 +58,7 @@ The project remains a simulated-device engineering exercise. Industrial protocol
 | Status acceptance tool | Observe graceful and intentional process-exit transitions, then verify retained offline with a new subscriber. | Implemented and verified against the local broker on Windows. |
 | Engineering documentation | Eight ADRs, architecture, phase records, evidence files, and Chinese/English learning material. | Plans and recorded execution results are distinguished. |
 
-Current simulation implements **idle only**. Motion, jump, landing, and integrated multi-device generation remain future work. The JSON contract's scenario vocabulary does not imply that those generators or a motion detector already exist.
+The simulator generates four illustrative IMU profiles: idle, periodic motion, airborne jump, and a decaying landing impulse. These are separate scenarios; neither scenario labels in the payload nor a motion detector are part of this implementation.
 
 ## System Architecture
 
@@ -208,6 +208,22 @@ After the standalone status checks, verify a single process that also sends five
 ```
 
 Expected: five unique contract-valid telemetry samples in one stream, matching online/offline connection IDs, and an identical retained offline snapshot. This checks both topics for the same test device; it does not assert a general delivery order across topics. Expect `PASS integrated lifecycle`. See the [Windows acceptance record](docs/testing/integrated-lifecycle-windows.txt).
+
+### Try synthetic motion scenarios
+
+```powershell
+.\.venv\Scripts\python.exe -m simulator --scenario motion --samples 10
+.\.venv\Scripts\python.exe -m simulator --scenario jump --samples 5
+.\.venv\Scripts\python.exe -m simulator --scenario landing --samples 10
+```
+
+Idle remains the default. Motion varies horizontal acceleration and Z angular
+velocity; jump represents only the near-zero specific force of the airborne
+segment; landing starts with an illustrative Z impulse that decays toward the
+stationary baseline. These profiles are not physically calibrated. The same
+`--scenario` option is available on `simulator.mqtt_demo publish` and
+`simulator.status_demo device`. No scenario label is added to telemetry.
+Generator checks passed locally; Windows MQTT acceptance for non-idle is pending.
 
 ### Verify concurrent simulated devices
 
