@@ -373,7 +373,7 @@ CI will be added alongside the relevant implementation slices rather than postpo
 
 ## Documentation
 
-- [Phase 3B: health and structured logs](docs/phase-3b-health.md) — Windows acceptance pending.
+- [Phase 3B: health and structured logs](docs/phase-3b-health.md) — [Windows health acceptance](docs/testing/health-windows.txt); structured log acceptance pending.
 
 - [Phase 3A: full local Compose deployment](docs/phase-3a-compose.md) · [Windows evidence](docs/testing/compose-windows.txt)
 
