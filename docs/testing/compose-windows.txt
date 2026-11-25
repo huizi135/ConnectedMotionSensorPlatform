@@ -1,0 +1,11 @@
+Owner-supplied Windows Phase 3A acceptance.
+Reported startup: .NET images built, database healthy, migration exited 0,
+ingestion READY, and API listening on 5086.
+
+Command: .\.venv\Scripts\python.exe -m tools.test_compose_stack
+Broker acknowledged 5 samples + 1 retry. deviceId=phase2b-8dd2c55692444a70aeafd712f2dfb96b
+PASS history API: pages 2+2+1; five unique readings; invalid range returns 400.
+PASS Compose end-to-end: phase2b-8dd2c55692444a70aeafd712f2dfb96b
+
+Scope: fresh local fixture via MQTT, ingestion, PostgreSQL and paginated HTTP
+retrieval. No explicit DUPLICATE log, clean-machine test or outage test supplied.

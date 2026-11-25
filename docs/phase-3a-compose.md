@@ -39,5 +39,5 @@ docker compose -f infrastructure/compose.yaml --profile storage --profile app do
 ```
 
 Windows startup reported: images built, database healthy, migration exit 0, and both
-applications ready. Fresh end-to-end acceptance is pending. Author checks for the
+applications ready. Fresh end-to-end acceptance passed; see [Windows evidence](testing/compose-windows.txt). Author checks for the
 runner: Python compilation and simulated delayed readiness, excess rows and timeout.
