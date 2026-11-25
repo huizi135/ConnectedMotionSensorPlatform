@@ -39,25 +39,27 @@ try
     {
         e.AutoAcknowledge = false;
         if (failure.Task.IsCompleted || stop.IsCancellationRequested) return;
+        Reading? sample = null;
         try
         {
             string outcome;
             try
             {
-                var sample = Reading.Parse(e.ApplicationMessage.Topic, e.ApplicationMessage.Payload.ToArray());
+                sample = Reading.Parse(e.ApplicationMessage.Topic, e.ApplicationMessage.Payload.ToArray());
                 outcome = await SaveAsync(db, sample, stop.Token);
             }
             catch (InvalidTelemetryException)
             {
-                Console.WriteLine("REJECT invalid telemetry");
+                Log("REJECT", "invalid_telemetry");
                 await e.AcknowledgeAsync(stop.Token);
                 return;
             }
-            Console.WriteLine(outcome);
+            Log(outcome, "write_result", sample);
             await e.AcknowledgeAsync(stop.Token);
         }
         catch (Exception ex)
         {
+            Log("ERROR", "delivery_failed", sample, ex.GetType().Name);
             failure.TrySetResult(ex);
         }
     };
@@ -77,7 +79,7 @@ try
         .Build(), startup.Token);
     if (subscription.Items.Count() != 1 || subscription.Items.Any(i => (int)i.ResultCode != 1))
         throw new IOException("Broker did not grant QoS 1 for telemetry.");
-    Console.WriteLine("READY .NET ingestion");
+    Log("READY", "READY .NET ingestion");
     var error = await failure.Task.WaitAsync(stop.Token);
     throw error;
 }
@@ -85,12 +87,20 @@ catch (OperationCanceledException) when (stop.IsCancellationRequested) { }
 catch (Exception ex)
 {
     // Do not print connection strings, credentials, or payloads.
-    Console.Error.WriteLine(ex is IOException or InvalidOperationException
-        ? $"Ingestion stopped: {ex.GetType().Name}"
-        : $"Ingestion stopped: {ex.GetType().Name}; check broker, database and migration.");
+    Log("ERROR", "ingestion_stopped", errorType: ex.GetType().Name);
     return 1;
 }
 return 0;
+
+static void Log(string outcome, string message, Reading? sample = null, string? errorType = null)
+{
+    Console.WriteLine(JsonSerializer.Serialize(new
+    {
+        timestamp = DateTimeOffset.UtcNow, outcome, message,
+        deviceId = sample?.Device, streamId = sample?.Stream,
+        messageId = sample?.Id, sequence = sample?.Sequence, errorType
+    }));
+}
 
 static async Task<string> SaveAsync(NpgsqlDataSource db, Reading r, CancellationToken ct)
 {
@@ -112,7 +122,7 @@ static async Task<string> SaveAsync(NpgsqlDataSource db, Reading r, Cancellation
     if (count == 1)
     {
         await tx.CommitAsync(ct);
-        return $"STORED {r.Id} {r.Device} seq={r.Sequence}";
+        return "STORED";
     }
 
     await using var match = new NpgsqlCommand(
@@ -121,7 +131,7 @@ static async Task<string> SaveAsync(NpgsqlDataSource db, Reading r, Cancellation
     Bind(match);
     var identical = (bool)(await match.ExecuteScalarAsync(ct))!;
     await tx.RollbackAsync(ct);
-    return identical ? $"DUPLICATE {r.Id}" : $"CONFLICT {r.Id}";
+    return identical ? "DUPLICATE" : "CONFLICT";
 
     void Bind(NpgsqlCommand cmd)
     {

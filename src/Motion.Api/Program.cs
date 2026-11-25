@@ -4,6 +4,12 @@ using Npgsql;
 using NpgsqlTypes;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.ClearProviders();
+builder.Logging.AddJsonConsole(options =>
+{
+    options.UseUtcTimestamp = true;
+    options.TimestampFormat = "O";
+});
 builder.WebHost.UseUrls(Environment.GetEnvironmentVariable("MOTION_API_URL") ?? "http://127.0.0.1:5086");
 var password = Environment.GetEnvironmentVariable("MOTION_DB_PASSWORD")
         ?? Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
@@ -20,6 +26,25 @@ builder.Services.AddSingleton<NpgsqlDataSource>(_ => NpgsqlDataSource.Create(
     }.ConnectionString));
 
 var app = builder.Build();
+
+app.MapGet("/health/live", () => Results.Ok(new { status = "live" }));
+app.MapGet("/health/ready", async Task<IResult> (NpgsqlDataSource db, CancellationToken ct) =>
+{
+    using var budget = CancellationTokenSource.CreateLinkedTokenSource(ct);
+    budget.CancelAfter(TimeSpan.FromSeconds(3));
+    try
+    {
+        await using var probe = db.CreateCommand("SELECT 1 FROM sensor_readings LIMIT 1");
+        await probe.ExecuteScalarAsync(budget.Token);
+        return Results.Ok(new { status = "ready", database = "reachable" });
+    }
+    catch (Exception ex) when (!ct.IsCancellationRequested && (ex is NpgsqlException or OperationCanceledException))
+    {
+        app.Logger.LogWarning("Database readiness failed ({ExceptionType}).", ex.GetType().Name);
+        return Results.Json(new { status = "not_ready", database = "unavailable" }, statusCode: 503);
+    }
+});
+
 app.MapGet("/api/v1/devices/{deviceId}/readings", async Task<IResult> (
     string deviceId, string? from, string? to, int? limit,
     string? afterSampledAt, Guid? afterMessageId, NpgsqlDataSource db, CancellationToken ct) =>

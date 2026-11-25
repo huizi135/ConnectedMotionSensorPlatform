@@ -373,6 +373,8 @@ CI will be added alongside the relevant implementation slices rather than postpo
 
 ## Documentation
 
+- [Phase 3B: health and structured logs](docs/phase-3b-health.md) — Windows acceptance pending.
+
 - [Phase 3A: full local Compose deployment](docs/phase-3a-compose.md) · [Windows evidence](docs/testing/compose-windows.txt)
 
 - [Phase 2B: .NET MQTT-to-PostgreSQL ingestion](docs/phase-2b-ingestion.md) — [Windows acceptance](docs/testing/ingestion-windows.txt).
