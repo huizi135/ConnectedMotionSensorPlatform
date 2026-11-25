@@ -58,7 +58,7 @@ The project remains a simulated-device engineering exercise. Industrial protocol
 | Status acceptance tool | Observe graceful and intentional process-exit transitions, then verify retained offline with a new subscriber. | Implemented and verified against the local broker on Windows. |
 | Engineering documentation | Eight ADRs, architecture, phase records, evidence files, and Chinese/English learning material. | Plans and recorded execution results are distinguished. |
 
-Current simulation implements **idle only**. Motion, jump, landing, integrated multi-device generation, and automatic reconnection remain future work. The JSON contract's scenario vocabulary does not imply that those generators or a motion detector already exist.
+Current simulation implements **idle only**. Motion, jump, landing, and integrated multi-device generation remain future work. The JSON contract's scenario vocabulary does not imply that those generators or a motion detector already exist.
 
 ## System Architecture
 
@@ -208,6 +208,29 @@ After the standalone status checks, verify a single process that also sends five
 ```
 
 Expected: five unique contract-valid telemetry samples in one stream, matching online/offline connection IDs, and an identical retained offline snapshot. This checks both topics for the same test device; it does not assert a general delivery order across topics. Expect `PASS integrated lifecycle`. See the [Windows acceptance record](docs/testing/integrated-lifecycle-windows.txt).
+
+### Try bounded device reconnect
+
+In terminal A:
+
+```powershell
+.\.venv\Scripts\python.exe -m simulator.status_demo device --device-id sim-reconnect-001 --samples 5 --seconds 90 --reconnect-attempts 30
+```
+
+Wait for `DEVICE active`. In terminal B, interrupt and restore the local broker:
+
+```powershell
+docker compose -f infrastructure/compose.yaml stop mosquitto
+docker compose -f infrastructure/compose.yaml start mosquitto
+```
+
+Expect at least one `RECONNECT`, then `ACK status=online` with a different
+connection ID and five new sample ACKs. Press Ctrl+C during the second hold for
+graceful offline. The retry budget is 30 attempts with one second between
+attempts (connection processing also takes time). Authentication and publish
+refusals fail directly. Recovery starts a fresh stream; it does not replay old
+samples. This procedure interrupts other local broker clients and has not yet
+been accepted on Windows.
 
 ### Stop the local broker
 

@@ -9,7 +9,7 @@ import time
 from uuid import uuid4
 
 import paho.mqtt.client as mqtt
-from .mqtt_demo import Connection, ROOT, publish, validate_message, validators
+from .mqtt_demo import Connection, ConnectionLost, ROOT, publish, validate_message, validators
 
 
 def status_payload(device_id, connection_id, state, *, will=False):
@@ -127,11 +127,23 @@ def observe(credentials, args, topic, checks):
         connection.close()
 
 
+def run_with_reconnect(credentials, args, topic, checks):
+    for attempt in range(args.reconnect_attempts + 1):
+        try:
+            return run_device(credentials, args, topic, checks)
+        except ConnectionLost as exc:
+            if attempt == args.reconnect_attempts:
+                raise
+            print(f'RECONNECT {attempt + 1}/{args.reconnect_attempts}: {exc}; retry in 1s', flush=True)
+            time.sleep(1)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('mode', choices=['watch', 'device', 'snapshot'])
     parser.add_argument('--device-id', default='sim-status-001')
     parser.add_argument('--samples', type=int, default=0, help='Idle telemetry samples before the status-only hold (device mode)')
+    parser.add_argument('--reconnect-attempts', type=int, default=0)
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--seconds', type=int, default=8)
     parser.add_argument('--timeout', type=int, default=180)
@@ -144,11 +156,13 @@ def main():
         parser.error('seconds and timeout must be 1..300')
     if not 0 <= args.samples <= 100 or (args.samples and args.mode != 'device'):
         parser.error('--samples must be 0..100 and nonzero only in device mode')
+    if not 0 <= args.reconnect_attempts <= 30 or (args.reconnect_attempts and (args.mode != 'device' or args.exit_mode != 'graceful')):
+        parser.error('--reconnect-attempts must be 0..30 and nonzero only in graceful device mode')
     credentials = json.loads((ROOT / 'secrets/mqtt/clients.json').read_text(encoding='utf-8'))
     topic = f'motion/v1/devices/{args.device_id}/status'
     checks = validators()
     if args.mode == 'device':
-        run_device(credentials, args, topic, checks)
+        run_with_reconnect(credentials, args, topic, checks)
     else:
         observe(credentials, args, topic, checks)
 

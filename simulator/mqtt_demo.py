@@ -16,6 +16,10 @@ sys.path.insert(0, str(ROOT / 'tools'))
 from validate_contracts import validate_message, validators
 
 
+class ConnectionLost(RuntimeError):
+    """Transport failure eligible for bounded reconnect."""
+
+
 class Connection:
     """Single-threaded network loop; inspect MQTT v5 reason codes directly."""
     def __init__(self, credentials, role):
@@ -41,7 +45,9 @@ class Connection:
 
     def on_disconnect(self, client, userdata, flags, reason, properties):
         self.connected = False
-        self.error = 'MQTT connection closed: ' + str(reason)
+        detail = 'MQTT connection closed: ' + str(reason)
+        retryable = not flags.is_disconnect_packet_from_server or reason.value == 139  # Server shutting down
+        self.error = ConnectionLost(detail) if retryable else detail
 
     def on_subscribe(self, client, userdata, mid, reasons, properties):
         if not reasons or any(reason.is_failure for reason in reasons):
@@ -59,6 +65,8 @@ class Connection:
         deadline = time.monotonic() + timeout
         while True:
             if self.error:
+                if isinstance(self.error, ConnectionLost):
+                    raise self.error
                 raise RuntimeError(self.error)
             if predicate():
                 return
@@ -66,12 +74,18 @@ class Connection:
             if remaining <= 0:
                 raise RuntimeError(stage + ' timed out')
             rc = self.client.loop(timeout=min(0.1, remaining))
+            if self.error:
+                continue  # Preserve the protocol reason from the callback.
             if rc != mqtt.MQTT_ERR_SUCCESS:
-                raise RuntimeError(stage + ': network loop failed: ' + mqtt.error_string(rc))
+                error_type = ConnectionLost if rc in (mqtt.MQTT_ERR_CONN_LOST, mqtt.MQTT_ERR_NO_CONN) else RuntimeError
+                raise error_type(stage + ': network loop failed: ' + mqtt.error_string(rc))
 
     def open(self):
-        self.client.connect('127.0.0.1', 1883, keepalive=30,
-                            clean_start=mqtt.MQTT_CLEAN_START_FIRST_ONLY)
+        try:
+            self.client.connect('127.0.0.1', 1883, keepalive=30,
+                                clean_start=mqtt.MQTT_CLEAN_START_FIRST_ONLY)
+        except OSError as exc:
+            raise ConnectionLost(f'TCP connect failed: {exc}') from exc
         self.wait(lambda: self.connected, 10, 'CONNACK')
 
     def close(self):
