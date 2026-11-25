@@ -70,13 +70,13 @@ The status entry point can also publish idle telemetry on the same MQTT connecti
 
 ### Target architecture
 
-The diagram describes the intended platform. **The .NET backend, PostgreSQL, monitoring UI, and observability services are not implemented yet.**
+The diagram describes the intended platform. **A standalone PostgreSQL foundation is available; the .NET backend, monitoring UI and observability services remain planned.**
 
 ```mermaid
 flowchart TD
     Sensor["Python IMU simulator / future device gateway"] -->|MQTT| Broker["Mosquitto broker"]
     Broker --> Backend["Planned .NET ingestion and REST API"]
-    Backend -->|Validate and persist| Database[("Planned PostgreSQL")]
+    Backend -->|Validate and persist| Database[("PostgreSQL")]
     Database -->|History queries| Backend
     Backend -->|Live updates and history API| UI["Planned monitoring workspace"]
     Backend -->|Logs and metrics| Diagnostics["Planned observability"]
@@ -109,7 +109,7 @@ See the [contract guide](docs/mqtt-contract.md) and [schemas/examples](contracts
 | Development | Windows PowerShell; Docker Desktop with a WSL2-backed Linux engine. |
 | Documentation | Markdown, Mermaid, HTML learning guides, ADRs, and recorded test output. |
 
-**Planned:** C#/.NET and ASP.NET Core, PostgreSQL, a version-compatible EF Core/Npgsql integration, application containers, CI, structured backend diagnostics, and the monitoring interface. Their versions and the UI stack will be selected when their implementation slices begin. No frontend framework has been adopted in this repository.
+**Planned:** C#/.NET and ASP.NET Core, a version-compatible EF Core/Npgsql integration, application containers, CI, structured backend diagnostics, and the monitoring interface. Their versions and the UI stack will be selected when their implementation slices begin. No frontend framework has been adopted in this repository.
 
 ## Getting Started
 
@@ -348,7 +348,7 @@ There is currently **no graphical dashboard, hosted demo, or screenshot set** in
 | --- | --- | --- |
 | 0 — Design foundation | Baseline established | Architecture, contracts, repository conventions, ADRs, and bilingual documentation. |
 | 1 — Virtual devices and MQTT | In progress | Idle signals and basic MQTT path verified; finish integrated lifecycle, scenarios and concurrent devices; basic reconnect verified on Windows. |
-| 2 — Backend and persistence | Planned; next major priority | PostgreSQL schema/migrations/SQL, .NET MQTT consumer, constraints/deduplication, and REST history queries. |
+| 2 — Backend and persistence | In progress; PostgreSQL acceptance pending | PostgreSQL schema/migrations/SQL, .NET MQTT consumer, constraints/deduplication, and REST history queries. |
 | 3 — Deployment and observability | Planned | Backend containers, complete Compose, health checks, structured logs, CI/build verification, then metrics and dashboards. |
 | Monitoring workspace extension | Planned after backend/API foundation | Device state, live curves, diagnostics, latency interpretation, and historical inspection. |
 | 4 — Reliability and capacity | Planned | Bounded buffering/backpressure, outages/crashes, duplicates/order/gaps, and measured multi-device load. |
@@ -372,6 +372,8 @@ CI will be added alongside the relevant implementation slices rather than postpo
 | [`docs`](docs) | Architecture, roadmap, English/Chinese phase guides, and interview-oriented explanations. |
 
 ## Documentation
+
+- [Phase 2A: PostgreSQL setup and acceptance](docs/phase-2a-postgresql.md)
 
 Start with [Architecture](docs/architecture.md), [MQTT Contract](docs/mqtt-contract.md), [Broker Setup](docs/phase-1-mosquitto.md), or the [Engineering Roadmap](docs/engineering-roadmap.md).
 

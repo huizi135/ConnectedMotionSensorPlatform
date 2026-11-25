@@ -53,6 +53,27 @@ services:
         target: /auth
     network_mode: none
 
+  postgres:
+    image: postgres:17-bookworm
+    profiles: ["storage"]
+    env_file:
+      - path: ./postgres/.env
+        required: false
+    environment:
+      POSTGRES_DB: motion
+      POSTGRES_USER: motion
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/sql:/sql:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "motion", "-d", "motion"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
 volumes:
+  postgres_data:
   mqtt_auth:
   mqtt_data:
