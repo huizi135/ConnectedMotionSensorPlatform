@@ -64,3 +64,6 @@ prove recovery of the outage batch; the consumer uses a clean MQTT session.
 
 Author review: checked the change against the existing logging calls; .NET
 build and fault acceptance require the Windows Compose run.
+
+Windows acceptance passed: see [outage evidence](testing/db-outage-windows.txt).
+The old batch had zero rows at query time; a fresh batch passed end to end.

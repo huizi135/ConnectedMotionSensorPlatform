@@ -1,0 +1,15 @@
+Owner-supplied Windows Compose outage acceptance, 2026-11-25.
+
+Outage device phase2b-fc7c843b6c794bec8ca0cc200d0e35df:
+15:34:53 UTC delivery_failed for sequence 0, PostgresException, SQLSTATE 57P01.
+Ingestion stopped, then two startup failures reported NpgsqlException with null SQLSTATE.
+15:35:01 UTC consumer logged READY.
+Read-only query after recovery: 0 rows, no sequences for the outage device.
+
+Fresh device phase2b-7703cabadc50474097b37680260cac99:
+Broker acknowledged 5 samples + 1 retry.
+PASS history API: pages 2+2+1; five unique readings; invalid range returns 400.
+PASS Compose end-to-end.
+
+Scope: controlled local stop/start. New delivery recovered; the outage batch
+was not present at query time. No durable replay or general loss rate established.
