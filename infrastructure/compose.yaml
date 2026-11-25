@@ -86,7 +86,7 @@ services:
       - ./postgres/sql:/sql:ro
     entrypoint: ["/bin/sh", "-ec"]
     command:
-      - 'PGPASSWORD="${POSTGRES_PASSWORD:?PostgreSQL password required}" exec psql -X -h postgres -U motion -d motion -f /sql/001_initial.sql'
+      - 'PGPASSWORD="$${POSTGRES_PASSWORD:?PostgreSQL password required}" exec psql -X -w -h postgres -U motion -d motion -f /sql/001_initial.sql'
 
   ingestion:
     profiles: ["app"]
