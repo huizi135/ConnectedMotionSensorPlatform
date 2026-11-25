@@ -9,7 +9,7 @@ import time
 from uuid import uuid4
 
 import paho.mqtt.client as mqtt
-from .mqtt_demo import Connection, ROOT, validate_message, validators
+from .mqtt_demo import Connection, ROOT, publish, validate_message, validators
 
 
 def status_payload(device_id, connection_id, state, *, will=False):
@@ -52,6 +52,8 @@ def run_device(credentials, args, topic, checks):
         connection.open()
         send_status(connection, status_payload(args.device_id, connection_id, 'online'), topic, checks)
         online = True
+        if getattr(args, 'samples', 0):
+            publish(connection, args, checks, topic.removesuffix('/status') + '/telemetry')
         print(f'DEVICE active for {args.seconds}s; exit-mode={args.exit_mode}', flush=True)
         until = time.monotonic() + args.seconds
         try:
@@ -129,6 +131,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('mode', choices=['watch', 'device', 'snapshot'])
     parser.add_argument('--device-id', default='sim-status-001')
+    parser.add_argument('--samples', type=int, default=0, help='Idle telemetry samples before the status-only hold (device mode)')
+    parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--seconds', type=int, default=8)
     parser.add_argument('--timeout', type=int, default=180)
     parser.add_argument('--exit-mode', choices=['graceful', 'abrupt'], default='graceful')
@@ -138,6 +142,8 @@ def main():
         parser.error('Invalid device ID')
     if not 1 <= args.seconds <= 300 or not 1 <= args.timeout <= 300:
         parser.error('seconds and timeout must be 1..300')
+    if not 0 <= args.samples <= 100 or (args.samples and args.mode != 'device'):
+        parser.error('--samples must be 0..100 and nonzero only in device mode')
     credentials = json.loads((ROOT / 'secrets/mqtt/clients.json').read_text(encoding='utf-8'))
     topic = f'motion/v1/devices/{args.device_id}/status'
     checks = validators()

@@ -81,23 +81,46 @@ def clear_test_status(credentials, topic):
         connection.close()
 
 
-def run_case(credentials, checks, abrupt):
+def run_case(credentials, checks, abrupt, samples=0):
     device_id = 'status-check-' + uuid4().hex
     topic = f'motion/v1/devices/{device_id}/status'
     observer = Connection(credentials, 'backend')
     messages = []
     child = None
-    observer.client.on_message = receive_callback(observer, topic, checks, messages)
+    telemetry_topic = topic.removesuffix('/status') + '/telemetry'
+    telemetry = {}
+    receive_status = receive_callback(observer, topic, checks, messages)
+
+    def receive(client, userdata, message):
+        if not samples or message.topic != telemetry_topic:
+            receive_status(client, userdata, message)
+            return
+        try:
+            raw = message.payload.decode('utf-8')
+            if message.retain or validate_message(message.topic, raw, checks):
+                raise ValueError('Expected valid non-retained telemetry')
+            payload = json.loads(raw)
+            identity = payload['messageId']
+            if identity in telemetry and telemetry[identity] != payload:
+                raise ValueError('Conflicting telemetry identity')
+            telemetry[identity] = payload
+        except ValueError as exc:
+            observer.error = str(exc)
+
+    observer.client.on_message = receive
     mode = 'abrupt' if abrupt else 'graceful'
     try:
-        subscribe(observer, topic)
+        filters = [(topic, 1), (telemetry_topic, 1)] if samples else topic
+        subscribe(observer, filters)
         child = subprocess.Popen(
             [sys.executable, '-m', 'simulator.status_demo', 'device',
-             '--device-id', device_id, '--seconds', '1', '--exit-mode', mode],
+             '--device-id', device_id, '--seconds', '1', '--exit-mode', mode,
+             '--samples', str(samples)],
             cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
         )
         # Observe broker events directly; never parse subprocess READY/debug logs.
-        observer.wait(lambda: any(p['state'] == 'offline' for p, _ in messages),
+        observer.wait(lambda: any(p['state'] == 'offline' for p, _ in messages)
+                      and len(telemetry) >= samples,
                       45, mode + ' status transition')
         output, _ = child.communicate(timeout=10)
         expected_exit = 17 if abrupt else 0
@@ -111,6 +134,12 @@ def run_case(credentials, checks, abrupt):
                 unique.append(payload)
         assert_transition(unique, device_id, abrupt)
         print(f'PASS {mode}: live online -> offline, matching connectionId and time semantics', flush=True)
+        if samples:
+            readings = list(telemetry.values())
+            if (sorted(r['sequence'] for r in readings) != list(range(samples))
+                    or len({r['streamId'] for r in readings}) != 1):
+                raise RuntimeError('Expected one complete telemetry stream')
+            print(f'PASS integrated: {samples} unique IMU samples from the same device run', flush=True)
         snapshot(credentials, topic, checks, unique[-1])
         print(f'PASS {mode}: new subscriber received identical retained offline', flush=True)
     finally:
@@ -129,11 +158,17 @@ def run_case(credentials, checks, abrupt):
 
 
 def main():
-    argparse.ArgumentParser(description=__doc__).parse_args()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--integrated', action='store_true', help='Check one graceful device run with five IMU samples')
+    args = parser.parse_args()
     with socket.create_connection(('127.0.0.1', 1883), timeout=5):
         pass
     credentials = json.loads((ROOT / 'secrets/mqtt/clients.json').read_text(encoding='utf-8'))
     checks = validators()
+    if args.integrated:
+        run_case(credentials, checks, abrupt=False, samples=5)
+        print('PASS integrated lifecycle: status, telemetry and retained offline.', flush=True)
+        return
     run_case(credentials, checks, abrupt=False)
     run_case(credentials, checks, abrupt=True)
     print('PASS status lifecycle: graceful, simulated process crash and retained snapshots. '

@@ -66,7 +66,7 @@ Current simulation implements **idle only**. Motion, jump, landing, integrated m
 
 The publisher and subscriber run as separate Python processes on Windows. Both connect to a Mosquitto Linux container through `127.0.0.1:1883`. The subscriber validates received observations in memory and prints them to the terminal.
 
-The status demonstration is a separate entry point; its lifecycle has not yet been integrated into the telemetry publisher. No database or web application participates in the current path.
+The status entry point can also publish idle telemetry on the same MQTT connection: it announces online, waits for the batch's publish acknowledgments, then announces graceful offline. This integrated path is awaiting Windows broker acceptance. No database or web application participates in the current path.
 
 ### Target architecture
 
@@ -201,6 +201,14 @@ The runner subscribes first, launches unique one-second demo devices, checks gra
 
 See the [Windows status lifecycle evidence](docs/testing/status-lifecycle-windows.txt) for the successful real-broker run.
 
+After the standalone status checks, verify a single process that also sends five IMU samples:
+
+```powershell
+.\.venv\Scripts\python.exe tools/test_status_lifecycle.py --integrated
+```
+
+Expected: five unique contract-valid telemetry samples in one stream, matching online/offline connection IDs, and an identical retained offline snapshot. This checks both topics for the same test device; it does not assert a general delivery order across topics. Expect `PASS integrated lifecycle`.
+
 ### Stop the local broker
 
 ```powershell
@@ -322,7 +330,7 @@ GitHub shows HTML source; open checked-out HTML files in a browser for their for
 
 This is an independent engineering project inspired by sports motion-tracking problems, including the product domain of Aiving's Jump Tracker. It does not reproduce proprietary algorithms or internal architecture. The project complements my professional experience; it is not presented as production industrial, robotics, or medical-system deployment.
 
-The next work is to integrate device status with telemetry, complete the minimal simulator lifecycle, and build the backend/database path that will support a meaningful monitoring interface.
+The next work is to verify the integrated simulator lifecycle on Windows, finish the remaining simulator work, and build the backend/database path that will support a meaningful monitoring interface.
 
 ## License
 
