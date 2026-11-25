@@ -70,7 +70,7 @@ The status entry point can also publish idle telemetry on the same MQTT connecti
 
 ### Target architecture
 
-The diagram describes the intended platform. **A standalone PostgreSQL foundation is available; the .NET backend, monitoring UI and observability services remain planned.**
+The diagram describes the intended platform. **PostgreSQL is verified on Windows. A .NET console ingestion slice is implemented and awaiting end-to-end acceptance; REST API, monitoring UI and observability services remain planned.**
 
 ```mermaid
 flowchart TD
@@ -372,6 +372,8 @@ CI will be added alongside the relevant implementation slices rather than postpo
 | [`docs`](docs) | Architecture, roadmap, English/Chinese phase guides, and interview-oriented explanations. |
 
 ## Documentation
+
+- [Phase 2B: .NET MQTT-to-PostgreSQL ingestion](docs/phase-2b-ingestion.md) — implementation added; Windows build and end-to-end acceptance pending.
 
 - [Phase 2A: PostgreSQL setup and acceptance](docs/phase-2a-postgresql.md)
 - [Windows PostgreSQL acceptance evidence](docs/testing/postgresql-windows.txt)
