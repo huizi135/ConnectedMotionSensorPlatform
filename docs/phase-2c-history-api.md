@@ -7,7 +7,9 @@ against stored data without keeping the MQTT consumer running.
 
 ```powershell
 docker compose -f infrastructure/compose.yaml up -d --wait postgres
-$env:MOTION_DB_PASSWORD = Read-Host "PostgreSQL password" -MaskInput
+$secure = Read-Host "PostgreSQL password" -AsSecureString
+$env:MOTION_DB_PASSWORD = ([System.Net.NetworkCredential]::new('', $secure)).Password
+$secure.Dispose()
 try {
     dotnet run --project src/Motion.Api
 } finally {
@@ -15,7 +17,7 @@ try {
 }
 ```
 
-Use PowerShell 7.2 or newer for the masked prompt. Provide the current local
+Provide the current local
 database password. Do not paste it into logs or chat.
 
 The endpoint is `GET /api/v1/devices/{deviceId}/readings` on
@@ -28,11 +30,11 @@ an empty list. Invalid inputs yield HTTP 400.
 From another terminal, verify the five persisted readings from the Phase 2B run:
 
 ```powershell
-.\tools\test_history_api.ps1 -DeviceId phase2b-6480516f36b042018842ef908969cea5
+.\.venv\Scripts\python.exe tools/test_history_api.py --device-id phase2b-6480516f36b042018842ef908969cea5
 ```
 
 If that fixture was removed, repeat Phase 2B and use the newly printed device ID.
-The script walks pages of size two and requires three pages, unique IDs and
+The Python script requires no extra dependencies or PowerShell script execution policy changes. The script walks pages of size two and requires three pages, unique IDs and
 sequences 0–4, plus HTTP 400 for a reversed time range.
 
 The query is parameterized and uses the existing (device_id, sampled_at,

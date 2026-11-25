@@ -1,0 +1,4 @@
+Owner-reported Windows HTTP acceptance of Phase 2C (introduced in b074d61).
+Inline Python check used because PowerShell blocked loading the unsigned .ps1.
+PASS history API: pages 2+2+1; five unique readings; invalid range returns 400.
+Scope: existing five-row fixture and reversed time range. No load or outage test.
