@@ -1,0 +1,15 @@
+Owner-supplied Windows Compose ingestion logs, 2026-11-25 UTC.
+
+15:29:06: device phase2b-5da272b160bb451c9c7e283af6aab758 had five STORED
+records, sequences 0–4, all in stream a5997358-9bca-47bb-89f4-8d83ce357fd7.
+DUPLICATE matched the sequence-0 message ID c5d3407e-25e6-59b9-8f34-0f914f59aa34.
+
+15:31:13: a different device, phase2b-9b17f3a33963459ca902e36370b10400,
+logged delivery_failed (PostgresException) at sequence 0, then ingestion_stopped
+and a new READY entry. SQLSTATE was not logged; the cause and eventual delivery
+of that sample were not established. The runtime also reported a missing
+libgssapi_krb5.so.2, without preventing READY in this excerpt.
+
+Scope: structured successful, duplicate and failure outcomes observed.
+No post-change end-to-end PASS output supplied; see compose-windows.txt for
+the prior Phase 3A end-to-end test. READY is not evidence of replay.

@@ -29,4 +29,4 @@ curl.exe -i http://127.0.0.1:5086/health/ready
 Expected: live 200 and ready 503 during the outage, then ready 200 after recovery.
 This verifies the query API's health behavior, not MQTT replay or recovery
 during an in-flight write. These endpoints are not wired into container restart
-policies. The Windows health outage/recovery sequence passed; see [evidence](testing/health-windows.txt). Structured ingestion log acceptance remains pending.
+policies. The Windows health outage/recovery sequence passed; see [evidence](testing/health-windows.txt). [Windows ingestion logs](testing/structured-ingestion-windows.txt) confirm five stored samples and a correlated duplicate. A separate delivery failure and subsequent READY were observed; the failed sample's fate is unverified.
