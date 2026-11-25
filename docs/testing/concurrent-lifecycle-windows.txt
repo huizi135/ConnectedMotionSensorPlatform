@@ -1,0 +1,6 @@
+Owner-supplied Windows result for the original two-device runner (introduced in c3fcdf5):
+PASS concurrent lifecycle: two overlapping devices, five unique samples each.
+
+Exact local HEAD not supplied. Scope: overlapping online intervals, one independent
+subscriber per device, five distinct samples per stream and retained offline.
+This is not a capacity benchmark or evidence for runs with more than two devices.

@@ -209,7 +209,7 @@ After the standalone status checks, verify a single process that also sends five
 
 Expected: five unique contract-valid telemetry samples in one stream, matching online/offline connection IDs, and an identical retained offline snapshot. This checks both topics for the same test device; it does not assert a general delivery order across topics. Expect `PASS integrated lifecycle`. See the [Windows acceptance record](docs/testing/integrated-lifecycle-windows.txt).
 
-### Verify two concurrent simulated devices
+### Verify concurrent simulated devices
 
 With the broker running, execute from the repository root:
 
@@ -217,13 +217,14 @@ With the broker running, execute from the repository root:
 .\.venv\Scripts\python.exe tools/test_status_lifecycle.py --concurrent
 ```
 
-Two independent subscribers register before a shared start gate releases the
-two simulator processes. Each validates its own device's five unique telemetry
+Use `--concurrent 3` or `--concurrent 5` for three or five device/subscriber
+pairs. The supported test range is 2–10, with two when no number is given.
+Independent subscribers register before a shared start gate releases the devices. Each validates its own device's five unique telemetry
 samples (sequences 0–4 in one stream), graceful lifecycle and retained offline
 snapshot. The runner checks that the device-reported online intervals overlap
 on the same host. Expect `PASS concurrent lifecycle`. This does not measure
 the timing of individual publishes or establish throughput, production capacity,
-or per-device authorization. Windows runtime acceptance is pending.
+or per-device authorization. The [two-device Windows run](docs/testing/concurrent-lifecycle-windows.txt) passed before count configuration was added. Three- and five-device runs remain to be verified on Windows.
 
 ### Try bounded device reconnect
 

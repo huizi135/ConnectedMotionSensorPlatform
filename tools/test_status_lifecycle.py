@@ -164,30 +164,31 @@ def run_case(credentials, checks, abrupt, samples=0, start_gate=None):
             print('WARNING cleanup not confirmed for unique test topic: ' + topic, file=sys.stderr)
 
 
-def check_overlap(first, second):
+def check_overlap(*runs):
     latest_online = max(datetime.fromisoformat(events[0]['reportedAt'])
-                        for events in (first, second))
+                        for events in runs)
     earliest_offline = min(datetime.fromisoformat(events[1]['reportedAt'])
-                           for events in (first, second))
+                           for events in runs)
     if latest_online >= earliest_offline:
         raise RuntimeError('Device online intervals did not overlap')
 
 
-def run_concurrent(credentials, checks):
-    gate = Barrier(2)
-    with ThreadPoolExecutor(max_workers=2) as pool:
+def run_concurrent(credentials, checks, count):
+    gate = Barrier(count)
+    with ThreadPoolExecutor(max_workers=count) as pool:
         futures = [pool.submit(run_case, credentials, checks, abrupt=False,
-                               samples=5, start_gate=gate) for _ in range(2)]
-        first, second = [future.result() for future in futures]
-    check_overlap(first, second)
-    print('PASS concurrent lifecycle: two overlapping devices, five unique samples each.',
+                               samples=5, start_gate=gate) for _ in range(count)]
+        runs = [future.result() for future in futures]
+    check_overlap(*runs)
+    print(f'PASS concurrent lifecycle: {count} overlapping devices, five unique samples each.',
           flush=True)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     modes = parser.add_mutually_exclusive_group()
-    modes.add_argument('--concurrent', action='store_true', help='Check two overlapping device runs')
+    modes.add_argument('--concurrent', nargs='?', const=2, type=int, choices=range(2, 11), metavar='N',
+                       help='Check 2–10 overlapping device runs (default: 2 if flag is present)')
     modes.add_argument('--integrated', action='store_true', help='Check one graceful device run with five IMU samples')
     args = parser.parse_args()
     with socket.create_connection(('127.0.0.1', 1883), timeout=5):
@@ -195,7 +196,7 @@ def main():
     credentials = json.loads((ROOT / 'secrets/mqtt/clients.json').read_text(encoding='utf-8'))
     checks = validators()
     if args.concurrent:
-        run_concurrent(credentials, checks)
+        run_concurrent(credentials, checks, args.concurrent)
         return
     if args.integrated:
         run_case(credentials, checks, abrupt=False, samples=5)
